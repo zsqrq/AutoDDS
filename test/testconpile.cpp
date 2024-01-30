@@ -4,6 +4,10 @@
 #include <iostream>
 #include "boost/config/config.hpp"
 #include "boost/config/config/compiler/gcc.hpp"
+#include "boost/interprocess/interprocess/errors.hpp"
+#include "boost/interprocess/interprocess/exceptions.hpp"
+#include "boost/interprocess/interprocess/creation_tags.hpp"
+#include "boost/interprocess/interprocess/interprocess_fwd.hpp"
 union Data {
   int i;
   float f;
