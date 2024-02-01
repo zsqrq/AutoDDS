@@ -12,6 +12,7 @@
 #include "libs/interprocess/exceptions.hpp"
 #include "libs/interprocess/creation_tags.hpp"
 #include "libs/interprocess/permissions.hpp"
+#include "libs/interprocess/interprocess_fwd.hpp"
 
 int main() {
 

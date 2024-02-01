@@ -2,8 +2,8 @@
 // Created by wz on 24-2-1.
 //
 
-#ifndef AUTODDS_LIBS_CONFIG_CONFIG_HPP_
-#define AUTODDS_LIBS_CONFIG_CONFIG_HPP_
+#ifndef AUTODDS_CONFIG_HPP
+#define AUTODDS_CONFIG_HPP
 
 // if we don't have a user config, then use the default location:
 #if !defined(AUTODDS_USER_CONFIG) && !defined(AUTODDS_NO_USER_CONFIG)
