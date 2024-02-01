@@ -10,6 +10,8 @@
 #include "libs/interprocess/detail/workaround.hpp"
 #include "libs/interprocess/errors.hpp"
 #include "libs/interprocess/exceptions.hpp"
+#include "libs/interprocess/creation_tags.hpp"
+#include "libs/interprocess/permissions.hpp"
 
 int main() {
 
