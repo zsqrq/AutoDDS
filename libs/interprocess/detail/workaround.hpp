@@ -212,6 +212,6 @@
 #   define AUTODDS_INTERPROCESS_HAS_REENTRANT_STD_FUNCTIONS
 #  endif
 #endif
-
+#include "libs/core/no_exceptions_support.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_DETAIL_WORKAROUND_HPP_

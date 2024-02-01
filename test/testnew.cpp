@@ -9,6 +9,7 @@
 #include "libs/interprocess/detail/config_begin.hpp"
 #include "libs/interprocess/detail/workaround.hpp"
 #include "libs/interprocess/errors.hpp"
+#include "libs/interprocess/exceptions.hpp"
 
 int main() {
 
