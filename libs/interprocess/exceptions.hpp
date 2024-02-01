@@ -27,14 +27,14 @@ namespace interprocess {
 class AUTODDS_SYMBOL_VISIBLE interprocess_exception : public std::exception {
  public:
   interprocess_exception(const char* err) AUTODDS_NOEXCEPT
-  : m_err(other_error)
+      : m_err(other_error)
   {
     AUTODDS_TRY   {  m_str = err; }
-    AUTODDS_CATCH(...) {} AUTODDS_CATCH_END
+      AUTODDS_CATCH(...) {} AUTODDS_CATCH_END
   }
 
   interprocess_exception(const error_info& error_info, const char* str = 0)
-  : m_err(error_info)
+      : m_err(error_info)
   {
     AUTODDS_TRY{
         if (m_err.get_native_error() != 0) {
@@ -46,8 +46,8 @@ class AUTODDS_SYMBOL_VISIBLE interprocess_exception : public std::exception {
         else {
           m_str = "autodds::libs::interprocess_exception::library_error";
         }
-    }
-    AUTODDS_CATCH(...){} AUTODDS_CATCH_END
+      }
+      AUTODDS_CATCH(...){} AUTODDS_CATCH_END
   }
 
   ~interprocess_exception() AUTODDS_NOEXCEPT_OR_NOTHROW AUTODDS_OVERRIDE {}
@@ -68,10 +68,33 @@ class AUTODDS_SYMBOL_VISIBLE interprocess_exception : public std::exception {
 
 //!This is the exception thrown by shared interprocess_mutex family when a deadlock situation
 //!is detected or when using a interprocess_condition the interprocess_mutex is not locked
-class AUTODDS_SYMBOL_VISIBLE lock_exception
+class AUTODDS_SYMBOL_VISIBLE lock_exception : public interprocess_exception
+{
+ public:
+  lock_exception(error_code_t err = lock_error) AUTODDS_NOEXCEPT
+  : interprocess_exception(err)
+  {}
+
+  const char* what() const AUTODDS_NOEXCEPT_OR_NOTHROW AUTODDS_OVERRIDE
+  { return "autodds::libs::interprocess::lock_exception"; }
+};
+
+//!This exception is thrown when a memory request can't be
+//!fulfilled.
+class AUTODDS_SYMBOL_VISIBLE bad_alloc : public interprocess_exception
+{
+ public:
+  bad_alloc() : interprocess_exception("autodds::libs::interprocess::bad_alloc")
+  {}
+
+  const char* what() const AUTODDS_NOEXCEPT_OR_NOTHROW AUTODDS_OVERRIDE
+  { return "autodds::libs::interprocess::bad_alloc"; }
+};
 
 }
 }
 }
+
+#include "libs/interprocess/detail/config_end.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_EXCEPTIONS_HPP_
