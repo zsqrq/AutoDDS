@@ -51,4 +51,12 @@
 #pragma once
 #endif
 
+#ifndef AUTODDS_ASSERT
+#define AUTODDS_ASSERT assert
+#endif
+
+#ifndef AUTODDS_STATIC_ASSERT
+#define AUTODDS_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
+#endif
+
 #endif //AUTODDS_LIBS_CONFIG_CONFIG_HPP_

@@ -19,6 +19,7 @@
 #include "libs/move/utility_core.hpp"
 #include "libs/interprocess/interprocess_fwd.hpp"
 #include "libs/interprocess/exceptions.hpp"
+#include "libs/interprocess/detail/os_file_functions.hpp"
 #include "libs/interprocess/detail/shared_dir_helpers.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_SHARED_MEMORY_OBJECT_HPP_
