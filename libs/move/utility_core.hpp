@@ -1,0 +1,8 @@
+//
+// Created by wz on 24-2-2.
+//
+
+#ifndef AUTODDS_LIBS_MOVE_UTILITY_CORE_HPP_
+#define AUTODDS_LIBS_MOVE_UTILITY_CORE_HPP_
+
+#endif //AUTODDS_LIBS_MOVE_UTILITY_CORE_HPP_
