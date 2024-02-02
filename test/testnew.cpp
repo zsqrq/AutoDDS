@@ -90,10 +90,10 @@ int main() {
   auto s = std::is_copy_assignable<int>::value;
 //  s = std::is_em
   printf("AUTO_GCC = %d\n",std::is_trivially_assignable_v<decltype(a),int>);
-  printf("AUTO_GCC = %d\n",s);
+  printf("AUTO_GCC = %d\n",a);
 #endif
 //  Call_with_log(voidFunction); // 调用返回 void 的函数
-  int result = call_with_log(intFunction); // 调用返回 int 的函数
-  std::cout << "Result of intFunction: " << result << std::endl;
+//  int result = call_with_log(intFunction); // 调用返回 int 的函数
+//  std::cout << "Result of intFunction: " << result << std::endl;
   return 0;
 }
