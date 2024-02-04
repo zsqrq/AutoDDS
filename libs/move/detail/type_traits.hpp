@@ -31,6 +31,12 @@
 #     define AUTODDS_MOVE_HAS_TRIVIAL_COPY(T) ((__has_trivial_copy(T) AUTODDS_MOVE_INTEL_TT_OPTS))
 #     define AUTODDS_MOVE_HAS_TRIVIAL_ASSIGN(T) ((__has_trivial_assign(T) AUTODDS_MOVE_INTEL_TT_OPTS) )
 #   endif
+
+#   define AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T) AUTODDS_MOVE_INTEL_TT_OPTS)
+#   define AUTODDS_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) AUTODDS_MOVE_INTEL_TT_OPTS)
+#   define AUTODDS_MOVE_HAS_NOTHROW_COPY(T) ((__has_nothrow_copy(T) AUTODDS_MOVE_INTEL_TT_OPTS))
+#   define AUTODDS_MOVE_HAS_NOTHROW_ASSIGN(T) ((__has_nothrow_assign(T) AUTODDS_MOVE_INTEL_TT_OPTS))
+
 #if !defined(AUTODDS_NO_CXX11_RVALUE_REFERENCES) && !defined(AUTODDS_NO_CXX11_SFINAE_EXPR)
 
 template <typename T>
@@ -173,7 +179,7 @@ template<typename Tt, typename Ut>
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR
 #define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) || std::is_pod<T>::value
 #else
-#define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)    AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) || std::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_CONSTRUCTOR
@@ -445,6 +451,336 @@ struct is_reference_convertible_to_pointer
   static const bool value = sizeof(char) == sizeof(test<T>(source()));
 };
 
+template < class T
+    , bool Filter = is_class_or_union<T>::value  ||
+        is_void<T>::value            ||
+        is_reference<T>::value       ||
+        is_nullptr_t<T>::value       >
+struct is_function_impl
+{  static const bool value = is_reference_convertible_to_pointer<T>::value; };
+
+template <class T>
+struct is_function_impl<T, true>
+{  static const bool value = false; };
+
+template <class T>
+struct is_function
+    : is_function_impl<T>
+{};
+
+//       is_union
+template<class T>
+struct is_union_noextents_cv
+{  static const bool value = AUTODDS_MOVE_IS_UNION_IMPL(T); };
+
+template<class T>
+struct is_union
+    : is_union_noextents_cv<typename remove_cv<typename remove_all_extents<T>::type>::type>
+{};
+
+//  is_class
+template <class T>
+struct is_class
+{
+  static const bool value = is_class_or_union<T>::value && ! is_union<T>::value;
+};
+
+//             is_arithmetic
+template <class T>
+struct is_arithmetic
+{
+  static const bool value = is_floating_point<T>::value ||
+      is_integral<T>::value;
+};
+
+//    is_member_function_pointer
+template <class T>
+struct is_member_function_pointer_cv
+{
+  static const bool value = false;
+};
+
+template <class T, class C>
+struct is_member_function_pointer_cv<T C::*>
+    : is_function<T>
+{};
+
+template <class T>
+struct is_member_function_pointer
+    : is_member_function_pointer_cv<typename remove_cv<T>::type>
+{};
+
+//             is_enum
+#if !defined(AUTODDS_MOVE_IS_ENUM)
+//Based on (http://howardhinnant.github.io/TypeHiearchy.pdf)
+template <class T>
+struct is_enum_nonintrinsic
+{
+  static const bool value =  !is_arithmetic<T>::value     &&
+      !is_reference<T>::value      &&
+      !is_class_or_union<T>::value &&
+      !is_array<T>::value          &&
+      !is_void<T>::value           &&
+      !is_nullptr_t<T>::value      &&
+      !is_member_pointer<T>::value &&
+      !is_pointer<T>::value        &&
+      !is_function<T>::value;
+};
+#endif
+template <class T>
+struct is_enum
+{  static const bool value = AUTODDS_MOVE_IS_ENUM_IMPL(T);  };
+
+//       is_pod
+template<class T>
+struct is_pod_noextents_cv  //for non-c++11 compilers, a safe fallback
+{  static const bool value = AUTODDS_MOVE_IS_POD_IMPL(T); };
+
+template<class T>
+struct is_pod
+    : is_pod_noextents_cv<typename remove_cv<typename remove_all_extents<T>::type>::type>
+{};
+
+//             is_empty
+template <class T>
+struct is_empty
+{  static const bool value = AUTODDS_MOVE_IS_EMPTY_IMPL(T);  };
+
+
+template<class T>
+struct has_autodds_move_no_copy_constructor_or_assign_type
+{
+  template <class U>
+  static yes_type test(typename U::autodds_move_no_copy_constructor_or_assign*);
+
+  template <class U>
+  static no_type test(...);
+
+  static const bool value = sizeof(test<T>(0)) == sizeof(yes_type);
+};
+
+//       is_copy_constructible
+template<class T>
+struct is_copy_constructible
+{
+  template<class U> static typename add_reference<U>::type source();
+  static no_type test(...);
+  template <class U>
+  static yes_type test(U&, decltype(U(source<U>()))* = 0);
+  static const bool value = sizeof(test(source<T>())) == sizeof(yes_type);
+};
+
+//       is_copy_assignable
+# define  AUTODDS_MOVE_TT_CXX11_IS_COPY_ASSIGNABLE
+template <class T>
+struct is_copy_assignable
+{
+#if defined(AUTODDS_MOVE_TT_CXX11_IS_COPY_ASSIGNABLE)
+  typedef char yes_type;
+   struct no_type { char dummy[2]; };
+   
+   template <class U>   static typename add_reference<U>::type source();
+   template <class U>   static decltype(source<U&>() = source<const U&>(), yes_type() ) test(int);
+   template <class>     static no_type test(...);
+
+   static const bool value = sizeof(test<T>(0)) == sizeof(yes_type);
+#else
+  static const bool value = !has_autodds_move_no_copy_constructor_or_assign_type<T>::value;
+#endif
+};
+
+//       is_trivially_destructible
+template<class T>
+struct is_trivially_destructible
+{  static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T); };
+
+//////////////////////////////////////
+//       is_trivially_default_constructible
+//////////////////////////////////////
+template<class T>
+struct is_trivially_default_constructible
+{  static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T); };
+
+//////////////////////////////////////
+//       is_trivially_copy_constructible
+//////////////////////////////////////
+template<class T>
+struct is_trivially_copy_constructible
+{
+  static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T);
+};
+
+//////////////////////////////////////
+//       is_trivially_move_constructible
+//////////////////////////////////////
+template<class T>
+struct is_trivially_move_constructible
+{ static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE(T); };
+
+//////////////////////////////////////
+//       is_trivially_copy_assignable
+//////////////////////////////////////
+template<class T>
+struct is_trivially_copy_assignable
+{
+  static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T);
+};
+
+//////////////////////////////////////
+//       is_trivially_move_assignable
+//////////////////////////////////////
+template<class T>
+struct is_trivially_move_assignable
+{  static const bool value = AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T);  };
+
+//////////////////////////////////////
+//       is_nothrow_default_constructible
+//////////////////////////////////////
+template<class T>
+struct is_nothrow_default_constructible
+{  static const bool value = AUTODDS_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T);  };
+
+//////////////////////////////////////
+//    is_nothrow_copy_constructible
+//////////////////////////////////////
+template<class T>
+struct is_nothrow_copy_constructible
+{  static const bool value = AUTODDS_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T);  };
+
+//    is_nothrow_move_constructible
+template<class T>
+struct is_nothrow_move_constructible
+{  static const bool value = AUTODDS_MOVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE(T);  };
+
+//////////////////////////////////////
+//       is_nothrow_copy_assignable
+//////////////////////////////////////
+template<class T>
+struct is_nothrow_copy_assignable
+{  static const bool value = AUTODDS_MOVE_IS_NOTHROW_COPY_ASSIGNABLE(T);  };
+
+//////////////////////////////////////
+//    is_nothrow_move_assignable
+//////////////////////////////////////
+template<class T>
+struct is_nothrow_move_assignable
+{  static const bool value = AUTODDS_MOVE_IS_NOTHROW_MOVE_ASSIGNABLE(T);  };
+
+//////////////////////////////////////
+//    is_nothrow_swappable
+//////////////////////////////////////
+template<class T>
+struct is_nothrow_swappable
+{
+  static const bool value = is_empty<T>::value || is_pod<T>::value;
+};
+
+//       alignment_of
+template <typename T>
+struct alignment_of_hack
+{
+  T t1;
+  char c;
+  T t2;
+  alignment_of_hack();
+  ~alignment_of_hack();
+};
+
+template <unsigned A, unsigned S>
+struct alignment_logic
+{  static const std::size_t value = A < S ? A : S; };
+
+template< typename T >
+struct alignment_of_impl
+{  static const std::size_t value = AUTODDS_MOVE_ALIGNMENT_OF(T);  };
+
+template< typename T >
+struct alignment_of
+    : alignment_of_impl<T>
+{};
+class alignment_dummy;
+typedef void (*function_ptr)();
+typedef int (alignment_dummy::*member_ptr);
+
+struct alignment_struct
+{  long double dummy[4];  };
+
+//    max_align_t
+union max_align
+{
+  char        char_;
+  short       short_;
+  int         int_;
+  long        long_;
+#ifdef AUTODDS_HAS_LONG_LONG
+  ::autodds::long_long_type   long_long_;
+#endif
+  float       float_;
+  double      double_;
+  void *      void_ptr_;
+  long double long_double_[4];
+  alignment_dummy *unknown_class_ptr_;
+  function_ptr function_ptr_;
+  alignment_struct alignment_struct_;
+};
+typedef union max_align max_align_t;
+
+//    aligned_storage
+template<std::size_t Len, std::size_t Align>
+struct aligned_struct;
+#define AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(A)\
+template<std::size_t Len>\
+struct AUTODDS_ALIGNMENT(A) aligned_struct<Len, A>\
+{\
+   unsigned char data[Len];\
+};\
+//
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x1)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x2)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x4)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x8)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x10)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x20)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x40)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x80)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x100)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x200)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x400)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x800)
+AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT(0x1000)
+#undef AUTODDS_MOVE_ALIGNED_STORAGE_WITH_AUTODDS_ALIGNMENT
+
+template<std::size_t Len, std::size_t Align>
+union aligned_struct_wrapper
+{
+  typedef aligned_struct<Len, Align> aligner_t;
+  aligned_struct<Len, Align> aligner;
+  unsigned char data[Len > sizeof(aligner_t) ? Len : sizeof(aligner_t)];
+};
+
+template<std::size_t Len, std::size_t Align>
+struct aligned_storage_impl
+{
+  typedef aligned_struct_wrapper<Len, Align> type;
+};
+
+template<std::size_t Len, std::size_t Align = alignment_of<max_align_t>::value>
+struct aligned_storage
+{
+  //Sanity checks for input parameters
+  AUTODDS_MOVE_STATIC_ASSERT(Align > 0);
+
+  //Sanity checks for output type
+  typedef typename aligned_storage_impl<Len ? Len : 1, Align>::type type;
+  static const std::size_t value = alignment_of<type>::value;
+  AUTODDS_MOVE_STATIC_ASSERT(value >= Align);
+  AUTODDS_MOVE_STATIC_ASSERT((value % Align) == 0);
+
+  //Just in case someone instantiates aligned_storage
+  //instead of aligned_storage::type (typical error).
+ private:
+  aligned_storage();
+};
 
 }
 }
