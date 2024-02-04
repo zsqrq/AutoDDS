@@ -250,7 +250,6 @@ struct is_const<const T>
 { static const bool value = true; };
 
 
-
 //       unvoid_ref
 template <typename T> struct unvoid_ref : std::add_lvalue_reference<T>{};
 template <> struct unvoid_ref<void>                { typedef unvoid_ref & type; };
@@ -266,6 +265,185 @@ struct add_reference : std::add_lvalue_reference<T>
 template <typename T>
 struct add_const_reference
 { typedef const T& type; };
+
+template <class T>
+struct add_const_reference<T&>
+{  typedef T& type;   };
+
+//    add_const_if_c
+template<class T, bool Add>
+struct add_const_if_c
+    : if_c<Add, typename add_const<T>::type, T>
+{};
+
+//    remove_const
+template<class T>
+struct remove_const
+{  typedef T type;   };
+
+template<class T>
+struct remove_const< const T>
+{  typedef T type;   };
+
+//    remove_cv
+template<typename T> struct remove_cv                    {  typedef T type;   };
+template<typename T> struct remove_cv<const T>           {  typedef T type;   };
+template<typename T> struct remove_cv<const volatile T>  {  typedef T type;   };
+template<typename T> struct remove_cv<volatile T>        {  typedef T type;   };
+
+//    remove_cvref
+template<class T>
+struct remove_cvref
+    : remove_cv<typename remove_reference<T>::type>
+{};
+
+//    make_unsigned
+template <class T>
+struct make_unsigned_impl                                         {  typedef T type;   };
+template <> struct make_unsigned_impl<signed char>                {  typedef unsigned char  type; };
+template <> struct make_unsigned_impl<signed short>               {  typedef unsigned short type; };
+template <> struct make_unsigned_impl<signed int>                 {  typedef unsigned int   type; };
+template <> struct make_unsigned_impl<signed long>                {  typedef unsigned long  type; };
+#ifdef AUTODDS_HAS_LONG_LONG
+template <> struct make_unsigned_impl< ::autodds::long_long_type >  {  typedef ::autodds::ulong_long_type type; };
+#endif
+
+template <class T>
+struct make_unsigned
+    : make_unsigned_impl<typename remove_cv<T>::type>
+{};
+
+//    is_floating_point
+template<class T> struct is_floating_point_cv               {  static const bool value = false; };
+template<>        struct is_floating_point_cv<float>        {  static const bool value = true; };
+template<>        struct is_floating_point_cv<double>       {  static const bool value = true; };
+template<>        struct is_floating_point_cv<long double>  {  static const bool value = true; };
+
+template<class T>
+struct is_floating_point
+    : is_floating_point_cv<typename remove_cv<T>::type>
+{};
+
+//    is_integral
+template<class T> struct is_integral_cv                     {  static const bool value = false; };
+template<> struct is_integral_cv< bool >                    {  static const bool value = true; };
+template<> struct is_integral_cv< char >                    {  static const bool value = true; };
+template<> struct is_integral_cv< unsigned char >           {  static const bool value = true; };
+template<> struct is_integral_cv< signed char >             {  static const bool value = true; };
+#ifndef AUTODDS_NO_CXX11_CHAR16_T
+template<> struct is_integral_cv< char16_t >                {  static const bool value = true; };
+#endif
+#ifndef AUTODDS_NO_CXX11_CHAR32_T
+template<> struct is_integral_cv< char32_t >                {  static const bool value = true; };
+#endif
+#ifndef AUTODDS_NO_INTRINSIC_WCHAR_T
+template<> struct is_integral_cv< wchar_t >                 {  static const bool value = true; };
+#endif
+template<> struct is_integral_cv< short >                   {  static const bool value = true; };
+template<> struct is_integral_cv< unsigned short >          {  static const bool value = true; };
+template<> struct is_integral_cv< int >                     {  static const bool value = true; };
+template<> struct is_integral_cv< unsigned int >            {  static const bool value = true; };
+template<> struct is_integral_cv< long >                    {  static const bool value = true; };
+template<> struct is_integral_cv< unsigned long >           {  static const bool value = true; };
+#ifdef AUTODDS_HAS_LONG_LONG
+template<> struct is_integral_cv< ::autodds::long_long_type >{  static const bool value = true; };
+template<> struct is_integral_cv< ::autodds::ulong_long_type>{  static const bool value = true; };
+#endif
+template<class T>
+struct is_integral
+    : public is_integral_cv<typename remove_cv<T>::type>
+{};
+
+// remove_all_extents
+template <class T>
+struct remove_all_extents
+{  typedef T type;};
+
+template <class T>
+struct remove_all_extents<T[]>
+{  typedef typename remove_all_extents<T>::type type; };
+
+template <class T, std::size_t N>
+struct remove_all_extents<T[N]>
+{  typedef typename remove_all_extents<T>::type type;};
+
+//    is_scalar
+template<class T>
+struct is_scalar
+{  static const bool value = is_integral<T>::value || is_floating_point<T>::value; };
+
+// is_void
+template<class T>
+struct is_void_cv
+{  static const bool value = false; };
+
+template<>
+struct is_void_cv<void>
+{  static const bool value = true; };
+
+template<class T>
+struct is_void
+    : is_void_cv<typename remove_cv<T>::type>
+{};
+
+//  is_array
+template<class T>
+struct is_array
+{  static const bool value = false; };
+
+template<class T>
+struct is_array<T[]>
+{  static const bool value = true;  };
+
+template<class T, std::size_t N>
+struct is_array<T[N]>
+{  static const bool value = true;  };
+
+//           is_member_pointer
+template <class T>
+struct is_member_pointer_cv
+{  static const bool value = false; };
+
+template <class T, class U>
+struct is_member_pointer_cv<T U::*>
+{  static const bool value = true; };
+
+template <class T>
+struct is_member_pointer
+    : is_member_pointer_cv<typename remove_cv<T>::type>
+{};
+
+// is_nullptr_t
+template <class T>
+struct is_nullptr_t_cv
+{  static const bool value = false; };
+
+#if !defined(AUTODDS_NO_CXX11_NULLPTR)
+template <>
+struct is_nullptr_t_cv
+#if !defined(AUTODDS_NO_CXX11_DECLTYPE)
+    <decltype(nullptr)>
+#else
+  <std::nullptr_t>
+#endif
+{  static const bool value = true; };
+#endif
+
+template <class T>
+struct is_nullptr_t
+    : is_nullptr_t_cv<typename remove_cv<T>::type>
+{};
+
+//          is_function
+template <class T>
+struct is_reference_convertible_to_pointer
+{
+  struct twochar { char dummy[2]; };
+  template <class U> static char    test(U*);
+  template <class U> static twochar test(...);
+  static T& source();
+  static const bool value = sizeof(char) == sizeof(test<T>(source()));
+};
 
 
 }
