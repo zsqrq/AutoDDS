@@ -19,6 +19,7 @@
 #include "libs/common/cstdint.hpp"
 #include "libs/interprocess/shared_memory_object.hpp"
 #include "libs/move/detail/type_traits.hpp"
+#include "libs/interprocess/detail/os_file_functions.hpp"
 
 template<class T>
 struct add_lvalue_reference
@@ -92,6 +93,30 @@ int main() {
   printf("AUTO_GCC = %d\n",std::is_trivially_assignable_v<decltype(a),int>);
   printf("AUTO_GCC = %d\n",a);
 #endif
+  std::string test = "/home/wz/docker/AutoDDS/testremove";
+  DIR *d = opendir(test.c_str());
+  struct dirent *de;
+  struct ::stat st;
+  std::string fn;
+  while((de=::readdir(d))) {
+    if( de->d_name[0] == '.' && ( de->d_name[1] == '\0'
+        || (de->d_name[1] == '.' && de->d_name[2] == '\0' )) ){
+      continue;
+    }
+    std::cout <<de->d_name  << std::endl;
+    fn = test;
+    fn += '/';
+    fn += de->d_name;
+    std::cout << fn << std::endl;
+    if(std::remove(fn.c_str())) {
+      if(::stat(fn.c_str(), & st)) {
+        return false;
+      }
+
+    }
+  }
+  std::remove(test.c_str());
+
 //  Call_with_log(voidFunction); // 调用返回 void 的函数
 //  int result = call_with_log(intFunction); // 调用返回 int 的函数
 //  std::cout << "Result of intFunction: " << result << std::endl;
