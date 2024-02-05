@@ -21,5 +21,9 @@
 #include "libs/interprocess/exceptions.hpp"
 #include "libs/interprocess/detail/os_file_functions.hpp"
 #include "libs/interprocess/detail/shared_dir_helpers.hpp"
+#include "libs/interprocess/detail/char_wchar_holder.hpp"
+#include "libs/interprocess/permissions.hpp"
+#include "libs/move/adl_move_swap.hpp"
+#include <cstddef>
 
 #endif //AUTODDS_LIBS_INTERPROCESS_SHARED_MEMORY_OBJECT_HPP_
