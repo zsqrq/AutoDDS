@@ -1,0 +1,36 @@
+//
+// Created by wz on 24-2-6.
+//
+
+#ifndef AUTODDS_LIBS_INTRUSIVE_DETAIL_WORKAROUND_HPP_
+#define AUTODDS_LIBS_INTRUSIVE_DETAIL_WORKAROUND_HPP_
+
+#ifndef AUTODDS_CONFIG_HPP
+#  include "libs/config/config.hpp"
+#endif
+#
+#if defined(AUTODDS_HAS_PRAGMA_ONCE)
+#  pragma once
+#endif
+
+#if    !defined(AUTODDS_NO_CXX11_RVALUE_REFERENCES) && !defined(AUTODDS_NO_CXX11_VARIADIC_TEMPLATES)
+#define AUTODDS_INTRUSIVE_PERFECT_FORWARDING
+#endif
+
+#if defined(AUTODDS_INTRUSIVE_DISABLE_FORCEINLINE)
+#define AUTODDS_INTRUSIVE_FORCEINLINE inline
+#elif defined(AUTODDS_GCC) && (__GNUC__ <= 5)
+//Older GCCs have problems with forceinline
+   #define AUTODDS_INTRUSIVE_FORCEINLINE inline
+#else
+#define AUTODDS_INTRUSIVE_FORCEINLINE AUTODDS_FORCEINLINE
+#endif
+
+#if !(defined AUTODDS_NO_EXCEPTIONS)
+#    define AUTODDS_INTRUSIVE_TRY { try
+#    define AUTODDS_INTRUSIVE_CATCH(x) catch(x)
+#    define AUTODDS_INTRUSIVE_RETHROW throw;
+#    define AUTODDS_INTRUSIVE_CATCH_END }
+#endif
+
+#endif //AUTODDS_LIBS_INTRUSIVE_DETAIL_WORKAROUND_HPP_
