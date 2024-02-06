@@ -23,6 +23,7 @@ namespace autodds {
 namespace libs {
 namespace ipcdetail {
 using namespace autodds::libs::interprocess;
+using autodds::libs::interprocess::ipcdetail::open_or_create_shared_directory;
 
 template <class CharT>
 struct shared_dir_constants;

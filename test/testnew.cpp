@@ -20,7 +20,7 @@
 #include "libs/interprocess/shared_memory_object.hpp"
 #include "libs/move/detail/type_traits.hpp"
 #include "libs/interprocess/detail/os_file_functions.hpp"
-#include "libs/interprocess/detail/shared_dir_helpers.hpp"
+//#include "libs/interprocess/detail/shared_dir_helpers.hpp"
 
 template<class T>
 struct add_lvalue_reference

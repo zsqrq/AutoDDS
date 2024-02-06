@@ -44,6 +44,51 @@ AUTODDS_FORCEINLINE void swap_proxy (T& x, T& y) {
   std::swap(x, y);
 }
 
+template<class T, std::size_t N>
+void swap_proxy(T (& x)[N], T (& y)[N])
+{
+  for (std::size_t i = 0; i < N; ++i){
+    swap_proxy(x[i], y[i]);
+  }
 }
 
+}
+
+namespace autodds {
+namespace libs {
+
+template <class T>
+AUTODDS_FORCEINLINE void adl_move_swap(T& x, T& y) {
+  ::autodds_libs_move_adl_swap::swap_proxy(x, y);
+}
+
+template <class ForwardIt1, class ForwardIt2>
+ForwardIt2 adl_move_swap_ranges(ForwardIt1 first1, ForwardIt1 last1, ForwardIt2 first2)
+{
+  while (first1 != last1) {
+    adl_move_swap(*first1, *first2);
+    ++first1;
+    ++first2;
+  }
+  return first2;
+}
+
+template<class BidirIt1, class BidirIt2>
+BidirIt2 adl_move_swap_ranges_backward(BidirIt1 first1, BidirIt1 last1, BidirIt2 last2)
+{
+  while (first1 != last1) {
+    adl_move_swap(*(--last1), *(--last2));
+  }
+  return last2;
+}
+
+template<class ForwardIt1, class ForwardIt2>
+void adl_move_iter_swap(ForwardIt1 a, ForwardIt2 b)
+{
+  adl_move_swap(*a, *b);
+}
+
+}
+}
+#endif
 #endif //AUTODDS_LIBS_MOVE_ADL_MOVE_SWAP_HPP_
