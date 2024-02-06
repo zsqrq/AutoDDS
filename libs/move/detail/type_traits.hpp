@@ -15,6 +15,7 @@
 
 #include "libs/move/detail/workaround.hpp"
 #include "libs/move/detail/meta_utils.hpp"
+#include "libs/move/detail/addressof.hpp"
 #include <type_traits>
 
 #if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3) && !defined(__GCCXML__))) && !defined(AUTODDS_CLANG)

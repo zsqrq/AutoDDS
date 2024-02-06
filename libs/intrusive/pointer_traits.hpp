@@ -8,5 +8,6 @@
 #include "libs/intrusive/detail/workaround.hpp"
 #include "libs/intrusive/pointer_rebind.hpp"
 #include "libs/move/detail/pointer_element.hpp"
+#include "libs/intrusive/detail/mpl.hpp"
 
 #endif //AUTODDS_LIBS_INTRUSIVE_POINTER_TRAITS_HPP_
