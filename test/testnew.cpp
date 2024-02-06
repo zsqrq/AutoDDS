@@ -22,6 +22,7 @@
 #include "libs/interprocess/detail/os_file_functions.hpp"
 //#include "libs/interprocess/detail/shared_dir_helpers.hpp"
 #include "libs/interprocess/mapped_region.hpp"
+#include "libs/intrusive/detail/mpl.hpp"
 
 template<class T>
 struct add_lvalue_reference
@@ -85,6 +86,51 @@ int intFunction() {
   return 42;
 }
 
+struct WithValueType {
+  typedef int value_type;
+};
+
+struct WithoutValueType {
+  // 没有 value_type 定义
+};
+AUTODDS_INTRUSIVE_INSTANTIATE_DEFAULT_TYPE_TMPLT(value_type)
+
+struct MyContainer {
+  // 假设这个容器没有定义value_type
+};
+
+struct DefaultValueType {
+  typedef double type; // 如果 T 中没有定义 value_type，则使用 double
+};
+// 检测一个类型T是否有名为value_type的嵌套类型
+bool hasValueType = AUTODDS_INTRUSIVE_HAS_TYPE( , MyContainer, value_type);
+// 获取类型T的value_type，如果不存在，则使用int作为默认类型
+typedef AUTODDS_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT(, MyContainer, value_type, int) ContainerValueType;
+
+AUTODDS_INTRUSIVE_INSTANTIATE_EVAL_DEFAULT_TYPE_TMPLT(value_type)
+typedef autodds_intrusive_eval_default_type_value_type<MyContainer, DefaultValueType>::type ContainerValueType2;
+
+typedef AUTODDS_INTRUSIVE_OBTAIN_TYPE_WITH_EVAL_DEFAULT(,MyContainer,value_type,DefaultValueType) ContainerValueType3;
+
+AUTODDS_INTRUSIVE_INTERNAL_STATIC_BOOL_IS_TRUE(is_special_traits, is_special)
+
+struct SpecialType {
+  constexpr static bool is_special = true;
+};
+
+struct NormalType {};
+
+bool isSpecialType = is_special_traits_bool_is_true<SpecialType>::value; // true
+bool isNormalType = is_special_traits_bool_is_true<NormalType>::value; // false
+
+AUTODDS_INTRUSIVE_HAS_STATIC_MEMBER_FUNC_SIGNATURE(check_for_my_static_func, my_static_func)
+struct MyClass {
+  static void my_static_func() {}
+};
+
+struct MyOtherClass {};
+bool hasFunc = check_for_my_static_func<MyClass, void()>::value; // true
+bool hasFuncOther = check_for_my_static_func<MyOtherClass, void()>::value; // false
 
 int main() {
   AUTODDS_STATIC_ASSERT(true);
@@ -95,29 +141,42 @@ int main() {
   printf("AUTO_GCC = %d\n",std::is_trivially_assignable_v<decltype(a),int>);
   printf("AUTO_GCC = %d\n",a);
 #endif
-  std::string test = "/home/wz/docker/AutoDDS/testremove";
-  DIR *d = opendir(test.c_str());
-  struct dirent *de;
-  struct ::stat st;
-  std::string fn;
-  while((de=::readdir(d))) {
-    if( de->d_name[0] == '.' && ( de->d_name[1] == '\0'
-        || (de->d_name[1] == '.' && de->d_name[2] == '\0' )) ){
-      continue;
-    }
-    std::cout <<de->d_name  << std::endl;
-    fn = test;
-    fn += '/';
-    fn += de->d_name;
-    std::cout << fn << std::endl;
-    if(std::remove(fn.c_str())) {
-      if(::stat(fn.c_str(), & st)) {
-        return false;
-      }
+//  std::string test = "/home/wz/docker/AutoDDS/testremove";
+//  DIR *d = opendir(test.c_str());
+//  struct dirent *de;
+//  struct ::stat st;
+//  std::string fn;
+//  while((de=::readdir(d))) {
+//    if( de->d_name[0] == '.' && ( de->d_name[1] == '\0'
+//        || (de->d_name[1] == '.' && de->d_name[2] == '\0' )) ){
+//      continue;
+//    }
+//    std::cout <<de->d_name  << std::endl;
+//    fn = test;
+//    fn += '/';
+//    fn += de->d_name;
+//    std::cout << fn << std::endl;
+//    if(std::remove(fn.c_str())) {
+//      if(::stat(fn.c_str(), & st)) {
+//        return false;
+//      }
+//
+//    }
+//  }
+//  std::remove(test.c_str());
 
-    }
-  }
-  std::remove(test.c_str());
+  std::cout << "WithValueType has value_type: "
+            << std::is_same<autodds_intrusive_default_type_value_type<WithValueType, double>::type, int>::value
+            << std::endl;
+
+  // 检查 WithoutValueType
+  std::cout << "WithoutValueType has value_type: "
+            << std::is_same<autodds_intrusive_default_type_value_type<WithoutValueType, double>::type, double>::value
+            << std::endl;
+
+
+
+
 
 //  Call_with_log(voidFunction); // 调用返回 void 的函数
 //  int result = call_with_log(intFunction); // 调用返回 int 的函数

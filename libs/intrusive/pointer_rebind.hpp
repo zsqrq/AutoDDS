@@ -47,7 +47,7 @@ struct pointer_has_rebind_other
   static char test(int, typename X::template rebind<U>::other*);
 
   template <typename X>
-  static int test(any<int>, void);
+  static int test(any<int>, void*);
 
   static const bool value = (1 == sizeof(test<Ptr>(0, 0)));
 };
