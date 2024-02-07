@@ -189,8 +189,8 @@ int main() {
 
   std::cout << "bool has value_type: "<< hasDoSomethingMyClass <<std::endl;
 
-  提问("大剑哥有多帅");
-  回答;
+//  提问("大剑哥有多帅");
+//  回答;
 
 
 //  Call_with_log(voidFunction); // 调用返回 void 的函数
