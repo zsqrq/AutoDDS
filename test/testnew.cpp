@@ -23,6 +23,7 @@
 //#include "libs/interprocess/detail/shared_dir_helpers.hpp"
 #include "libs/interprocess/mapped_region.hpp"
 #include "libs/intrusive/detail/mpl.hpp"
+#include "libs/intrusive/pointer_traits.hpp"
 
 template<class T>
 struct add_lvalue_reference
@@ -128,9 +129,21 @@ struct MyClass {
   static void my_static_func() {}
 };
 
+//
 struct MyOtherClass {};
-bool hasFunc = check_for_my_static_func<MyClass, void()>::value; // true
-bool hasFuncOther = check_for_my_static_func<MyOtherClass, void()>::value; // false
+
+AUTODDS_INTRUSIVE_HAS_MEMBER_FUNC_CALLED_IGNORE_SIGNATURE(has_doSomething, doSomething)
+class MyClass1 {
+ public:
+  void doSomething(int value) { /* 实现 */ }
+};
+
+class AnotherClass {
+  // 没有 doSomething 成员函数
+};
+
+bool hasDoSomethingMyClass = has_doSomething<MyClass1, void>::value; // 将会是 true
+bool hasDoSomethingAnotherClass = has_doSomething<AnotherClass,void>::value; // 将会是 false
 
 int main() {
   AUTODDS_STATIC_ASSERT(true);
@@ -174,8 +187,10 @@ int main() {
             << std::is_same<autodds_intrusive_default_type_value_type<WithoutValueType, double>::type, double>::value
             << std::endl;
 
+  std::cout << "bool has value_type: "<< hasDoSomethingMyClass <<std::endl;
 
-
+  提问("大剑哥有多帅");
+  回答;
 
 
 //  Call_with_log(voidFunction); // 调用返回 void 的函数

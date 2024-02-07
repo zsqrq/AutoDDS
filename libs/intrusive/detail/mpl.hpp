@@ -174,6 +174,32 @@ struct TRAITS_PREFIX##_bool_is_true                                             
   }; \
 //
 
+#define AUTODDS_INTRUSIVE_HAS_MEMBER_FUNC_CALLED(TRAITS_NAME, FUNC_NAME) \
+template <typename Type> \
+struct TRAITS_NAME \
+{ \
+   struct BaseMixin \
+   { \
+      void FUNC_NAME(); \
+   }; \
+   struct Base : public Type, public BaseMixin { Base(); }; \
+   template <typename T, T t> class Helper{}; \
+   template <typename U> \
+   static autodds::intrusive::detail::no_type  test(U*, Helper<void (BaseMixin::*)(), &U::FUNC_NAME>* = 0); \
+   static autodds::intrusive::detail::yes_type test(...); \
+   static const bool value = sizeof(::autodds::intrusive::detail::yes_type) == sizeof(test((Base*)(0))); \
+};\
+//
+
+#define AUTODDS_INTRUSIVE_HAS_MEMBER_FUNC_CALLED_IGNORE_SIGNATURE(TRAITS_NAME, FUNC_NAME) \
+AUTODDS_INTRUSIVE_HAS_MEMBER_FUNC_CALLED(TRAITS_NAME##_ignore_signature, FUNC_NAME) \
+\
+template <typename Type, class> \
+struct TRAITS_NAME \
+   : public TRAITS_NAME##_ignore_signature<Type> \
+{};\
+//
+
 }
 }
 }

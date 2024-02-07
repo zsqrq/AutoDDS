@@ -55,6 +55,10 @@ struct has_move_emulation_disabled {
 #define AUTODDS_RV_REF(TYPE)\
       TYPE && \
    //
+#define AUTODDS_LV_CONST_REF(TYPE, name)\
+      const TYPE & name\
+   //
+
 #define AUTODDS_RV_REF_BEG\
          \
    //
