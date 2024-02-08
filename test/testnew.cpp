@@ -186,8 +186,9 @@ int main() {
   std::cout << "WithoutValueType has value_type: "
             << std::is_same<autodds_intrusive_default_type_value_type<WithoutValueType, double>::type, double>::value
             << std::endl;
-
+#ifdef AUTODDS_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
   std::cout << "bool has value_type: "<< hasDoSomethingMyClass <<std::endl;
+#endif
 
 //  提问("大剑哥有多帅");
 //  回答;

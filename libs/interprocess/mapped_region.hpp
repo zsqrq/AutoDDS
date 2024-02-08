@@ -438,10 +438,157 @@ inline mapped_region::mapped_region(const MemoryMappable &mapping,
   }
 }
 
+inline bool mapped_region::shrink_by(std::size_t bytes, bool from_back)
+{
+  void* shrink_page_start = 0;
+  std::size_t shrink_page_bytes = 0;
+
+  if (m_is_xsi || !this->priv_shrink_param_check(bytes, from_back, shrink_page_start,shrink_page_bytes))
+  {
+    return false;
+  }
+  else if (shrink_page_bytes)
+  {
+    return 0 == munmap(shrink_page_start, shrink_page_bytes);
+  } else
+  {
+    return true;
+  }
+}
+
+inline bool mapped_region::flush(std::size_t mapping_offset, std::size_t numbytes, bool async)
+{
+  void* address;
+  if (m_is_xsi || !this->priv_flush_param_check(mapping_offset, address, numbytes))
+  {
+    return false;
+  }
+  return msync(address, numbytes, async ? MS_ASYNC : MS_SYNC);
+}
+
+inline bool mapped_region::advise(advice_types type)
+{
+  int unix_advice = 0;
+  //Modes; 0: none, 2: posix, 1: madvise
+  const unsigned int mode_none = 0;
+  const unsigned int mode_padv = 1;
+  const unsigned int mode_madv = 2;
+  (void )mode_padv;
+  (void )mode_madv;
+  unsigned int mode = mode_none;
+  //Choose advice either from POSIX (preferred) or native Unix
+  switch (type) {
+    case advice_normal:
+#if defined(POSIX_MADV_NORMAL)
+      unix_advice = POSIX_MADV_NORMAL;
+      mode = mode_padv;
+#elif defined(MADV_NORMAL)
+      unix_advice = MADV_NORMAL;
+      mode = mode_madv;
+#endif
+      break;
+    case advice_random:
+#if defined(POSIX_MADV_RANDOM)
+      unix_advice = POSIX_MADV_RANDOM;
+      mode = mode_padv;
+#elif defined(MADV_RANDOM)
+      unix_advice = MADV_RANDOM;
+      mode = mode_madv;
+#endif
+      break;
+    case advice_willneed:
+#if defined(POSIX_MADV_WILLNEED)
+      unix_advice = POSIX_MADV_WILLNEED;
+      mode = mode_padv;
+#elif defined(MADV_WILLNEED)
+      unix_advice = MADV_WILLNEED;
+      mode = mode_madv;
+#endif
+      break;
+    case advice_dontneed:
+#if defined(POSIX_MADV_DONTNEED)
+      unix_advice = POSIX_MADV_DONTNEED;
+      mode = mode_padv;
+#elif defined(MADV_DONTNEED) && defined(AUTODDS_INTERPROCESS_MADV_DONTNEED_HAS_NONDESTRUCTIVE_SEMANTICS)
+      unix_advice = MADV_DONTNEED;
+      mode = mode_madv;
+#endif
+      break;
+    default:
+      return false;
+  }
+
+  switch (mode) {
+#if defined(POSIX_MADV_NORMAL)
+    case mode_padv:
+      return 0 == posix_madvise(this->priv_map_address(), this->priv_map_size(), unix_advice);
+#endif
+#if defined(MADV_NORMAL)
+    case mode_madv:
+      return 0 == madvise(
+#if defined(AUTODDS_INTERPROCESS_MADVISE_USES_CADDR_T)
+          (caddr_t)
+#endif
+          this->priv_map_address(), this->priv_map_size(), unix_advice);
+#endif
+    default:
+      return false;
+  }
+}
+
+inline void mapped_region::priv_close()
+{
+  if (m_base != 0)
+  {
+#ifdef AUTODDS_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
+    if(m_is_xsi){
+      int ret = ::shmdt(m_base);
+      AUTODDS_ASSERT(ret == 0);
+      (void)ret;
+      return;
+    }
+#endif
+    munmap(this->priv_map_address(), this->priv_map_size());
+    m_base = 0;
+  }
+}
+
+inline void mapped_region::dont_close_on_destruction()
+{ m_base = 0; }
+
+template <int d>
+const std::size_t mapped_region::page_size_holder<d>::pg_size
+    = mapped_region::page_size_holder<d>::get_page_size();
+
+inline std::size_t mapped_region::get_page_size() AUTODDS_NOEXCEPT
+{
+  if (!page_size_holder<0>::pg_size)
+    return page_size_holder<0>::get_page_size();
+  else
+    return page_size_holder<0>::pg_size;
+}
+
+inline void mapped_region::swap(mapped_region &other) AUTODDS_NOEXCEPT
+{
+  ::autodds::libs::adl_move_swap(this->m_base, other.m_base);
+  ::autodds::libs::adl_move_swap(this->m_size, other.m_size);
+  ::autodds::libs::adl_move_swap(this->m_page_offset, other.m_page_offset);
+  ::autodds::libs::adl_move_swap(this->m_mode, other.m_mode);
+  ::autodds::libs::adl_move_swap(this->m_is_xsi, other.m_is_xsi);
+}
+
+struct null_mapped_region_function
+{
+  bool operator()(void*, std::size_t, bool ) const
+  { return true; }
+  static std::size_t get_min_size()
+  { return 0; }
+};
+
 
 }
 }
 }
-
+#include "libs/interprocess/detail/config_end.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_MAPPED_REGION_HPP_
