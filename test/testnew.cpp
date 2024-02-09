@@ -24,6 +24,8 @@
 #include "libs/interprocess/mapped_region.hpp"
 #include "libs/intrusive/detail/mpl.hpp"
 #include "libs/intrusive/pointer_traits.hpp"
+#include "libs/interprocess/file_mapping.hpp"
+#include "libs/interprocess/offset_ptr.hpp"
 
 template<class T>
 struct add_lvalue_reference
@@ -189,6 +191,7 @@ int main() {
 #ifdef AUTODDS_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
   std::cout << "bool has value_type: "<< hasDoSomethingMyClass <<std::endl;
 #endif
+  std::cout << "sizes : " << sizeof(unsigned int)<<"  " << ((CHAR_BIT/2))<<std::endl;
 
 //  提问("大剑哥有多帅");
 //  回答;
