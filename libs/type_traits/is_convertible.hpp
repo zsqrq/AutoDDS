@@ -7,6 +7,7 @@
 
 #include "libs/type_traits/intrinsics.hpp"
 #include "libs/type_traits/integral_constant.hpp"
+#include "libs/type_traits/is_complete.hpp"
 
 #ifndef  AUTODDS_CONFIG_HPP
 #  include "libs/config/config.hpp"
