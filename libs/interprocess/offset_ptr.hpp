@@ -93,13 +93,39 @@ AUTODDS_INTERPROCESS_FORCEINLINE OffsetType offset_ptr_to_offset(const volatile 
   return ++offset;
 }
 
+////////////////////////////////////////////////////////////////////////
+//                      offset_ptr_to_offset_from_other
+////////////////////////////////////////////////////////////////////////
+#define AUTODDS_INTERPROCESS_OFFSET_PTR_BRANCHLESS_TO_OFF_FROM_OTHER
+template <typename OffsetType>
+AUTODDS_INTERPROCESS_FORCEINLINE OffsetType offset_ptr_to_offset_from_other
+    (const volatile void *this_ptr, const volatile void *other_ptr, OffsetType other_offset)
+{
+  typedef pointer_offset_caster<void*, OffsetType> caster_t;
+  OffsetType mask = other_offset == 1;
+  --mask;
+  OffsetType offset = caster_t(other_ptr).offset() - caster_t(this_ptr).offset();
+  offset &= mask;
+  return offset + other_offset;
 }
 
-}
+template <typename From, typename To>
+struct offset_ptr_maintains_address
+{
+    static const bool value = ipcdetail::is_cv_same<From, To>::value ||
+                              ipcdetail::is_cv_same<void, To>::value ||
+                              ipcdetail::is_cv_same<char, To>::value;
+};
+
+template <typename From, typename To, typename Ret = void>
+struct enable_if_convertible_equal_address
+    : enable_if_c<autodds::libs::is_c>
 
 
-}
-}
+} // namespace ipcdetail
+} // namespace interprocess
+} // namespace libs
+} // namespace autodds
 
 
 #endif //AUTODDS_LIBS_INTERPROCESS_OFFSET_PTR_HPP_
