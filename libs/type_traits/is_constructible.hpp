@@ -5,13 +5,10 @@
 #ifndef AUTODDS_LIBS_TYPE_TRAITS_IS_CONSTRUCTIBLE_HPP_
 #define AUTODDS_LIBS_TYPE_TRAITS_IS_CONSTRUCTIBLE_HPP_
 
-#ifndef  AUTODDS_CONFIG_HPP
-#  include "libs/config/config.hpp"
-#endif
-#
+#include "libs/type_traits/integral_constant.hpp"
+#include "libs/config/workaround.hpp"
+#include "libs/type_traits/is_destructible.hpp"
 
-#if defined (AUTODDS_HAS_PRAGMA_ONCE)
-#  pragma once
-#endif
+
 
 #endif //AUTODDS_LIBS_TYPE_TRAITS_IS_CONSTRUCTIBLE_HPP_
