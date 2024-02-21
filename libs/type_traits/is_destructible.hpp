@@ -26,6 +26,23 @@ struct is_destructible_imp
 };
 
 } // namespace detail
+
+template <typename T>
+struct is_destructible : public integral_constant<bool, sizeof(detail::is_destructible_imp::test<T>(0)) == sizeof(type_traits::yes_tpye)>
+{
+  AUTODDS_STATIC_ASSERT_MSG(autodds::libs::is_complete<T>::value,"Arguments to is_destructible must be complete types");
+};
+
+template <> struct is_destructible<void> : public false_type {};
+template <> struct is_destructible<void const> : public false_type {};
+template <> struct is_destructible<void volatile> : public false_type {};
+template <> struct is_destructible<void const volatile> : public false_type {};
+template <typename T> struct is_destructible<T&> : public is_destructible<T>{};
+template <typename T> struct is_destructible<T&&> : public is_destructible<T> {};
+template <typename T, std::size_t N>
+struct is_destructible<T[N]> : public is_destructible<T> {};
+template <typename T>
+struct is_destructible<T[]> : public is_destructible<T> {};
 } // namespace libs
 } // namespace autodds
 
