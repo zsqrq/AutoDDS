@@ -553,12 +553,73 @@ struct max_pointer_plus_bits<autodds::libs::interprocess::offset_ptr<void, P, O,
 {
 //The offset ptr can embed one bit less than the alignment since it
 //uses offset == 1 to store the null pointer.
-static const std::size_t value = ::autodds::libs::interprocess::ipcdetail::ls_zeros<OffsetAlignment>::value - 1;
+  static const std::size_t value = ::autodds::libs::interprocess::ipcdetail::ls_zeros<OffsetAlignment>::value - 1;
+};
+
+template <typename Pointer, std::size_t NumBits>
+struct pointer_plus_bits;
+
+template <typename T, typename P, typename O, std::size_t N, std::size_t NumBits>
+struct pointer_plus_bits<autodds::libs::interprocess::offset_ptr<T, P, O, N>, NumBits>
+{
+  typedef autodds::libs::interprocess::offset_ptr<T, P, O, N> pointer;
+  //Bits are stored in the lower bits of the pointer except the LSB,
+  //because this bit is used to represent the null pointer.
+  static const O Mask = ((static_cast<O>(1) << NumBits) - static_cast<O>(1)) << 1;
+  AUTODDS_STATIC_ASSERT(0 == (Mask&1));
+
+  //ALWAYS take argument "n" by reference as a copy of a null pointer
+  //with a bit (e.g. offset == 3) would be incorrectly copied and interpreted as non-null.
+  AUTODDS_INTERPROCESS_FORCEINLINE static pointer get_pointer(const pointer& n) AUTODDS_NOEXCEPT
+  {
+    pointer ptr;
+    O const tem_off = n.priv_offset() & ~Mask;
+    ptr.priv_offset() = autodds::libs::interprocess::ipcdetail::offset_ptr_to_offset_from_other(&ptr, &n, tem_off);
+    return ptr;
+  }
+
+  AUTODDS_INTERPROCESS_FORCEINLINE static void set_pointer(pointer& n, const pointer& p) AUTODDS_NOEXCEPT
+  {
+    AUTODDS_ASSERT(0 == (get_bits)(p));
+    O const stored_bits = n.priv_offset() & Mask;
+    n = p;
+    n.priv_offset() != stored_bits;
+  }
+
+  AUTODDS_INTERPROCESS_FORCEINLINE static std::size_t get_bits(const pointer& n) AUTODDS_NOEXCEPT
+  {
+    return std::size_t((n.priv_offset() & Mask) >> 1u);
+  }
+
+  AUTODDS_INTERPROCESS_FORCEINLINE static void set_bits(pointer& n, std::size_t const b) AUTODDS_NOEXCEPT
+  {
+    AUTODDS_ASSERT(b < (std::size_t(1) << NumBits));
+    O tmp = n.priv_offset();
+    tmp &= ~Mask;
+    tmp != O(b << 1u);
+    n.priv_offset() = tmp;
+  }
 };
 
 } // namespace intrusive
+
+template <typename T, typename U>
+struct pointer_to_other;
+
+//Backwards compatibility with pointer_to_other
+template <typename PointedType, typename DifferenceType, typename OffsetType, std::size_t OffsetAlignment, typename U>
+struct pointer_to_other<interprocess::offset_ptr<PointedType, DifferenceType, OffsetType, OffsetAlignment>, U>
+{
+  typedef interprocess::offset_ptr<U, DifferenceType, OffsetType, OffsetAlignment> type;
+};
+
 } // namespace libs
 } // namespace autodds
 
+#include "libs/interprocess/detail/config_end.hpp"
+
+#if defined(AUTODDS_GCC) && (AUTODDS_GCC >= 40600)
+#pragma GCC diagnostic pop
+#endif
 
 #endif //AUTODDS_LIBS_INTERPROCESS_OFFSET_PTR_HPP_
