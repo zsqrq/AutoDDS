@@ -216,7 +216,7 @@ inline unsigned get_num_cores()
   {
     return 1;
   } else if (static_cast<unsigned long>(cores) >=
-  static_cast<unsigned long >(static_cast<unsigned int >(-1)))
+      static_cast<unsigned long >(static_cast<unsigned int >(-1)))
   {
     return static_cast<unsigned int>(-1);
   }
@@ -242,9 +242,85 @@ inline void get_pid_str(pid_str_t &pid_str, OS_process_id_t pid)
   bstream << pid << std::ends;
 }
 
+inline void get_pid_str(pid_str_t &pid_str)
+{  get_pid_str(pid_str, get_current_process_id());  }
+
+class abstract_thread
+{
+ public:
+  virtual ~abstract_thread() {}
+  virtual void run() = 0;
+};
+
+template <typename T>
+class os_thread_funcptr_deleter
+{
+ public:
+  explicit os_thread_funcptr_deleter(T* ptr)
+      : m_ptr(ptr)
+  {}
+
+  T* release()
+  {
+    T* tmp = m_ptr;
+    m_ptr = 0;
+    return tmp;
+  }
+
+  T* get() const
+  { return m_ptr; }
+
+  T* operator -> () const
+  { return m_ptr; }
+
+  ~os_thread_funcptr_deleter()
+  { delete m_ptr; }
+
+ private:
+  T* m_ptr;
+};
+
+extern "C" void* launch_thread_routine(void* pv);
+
+inline void* launch_thread_routine(void* pv)
+{
+  os_thread_funcptr_deleter<abstract_thread> pt(static_cast<abstract_thread*>(pv));
+  pt->run();
+  return 0;
+}
+
+template <typename Func>
+class launch_thread_impl : public abstract_thread
+{
+ public:
+  explicit launch_thread_impl(Func f)
+  : m_func(f)
+  {}
+
+  virtual void run() AUTODDS_OVERRIDE
+  { m_func(); }
+
+ private:
+  Func* m_func;
+};
+
+template <typename Func>
+inline int thread_launch(OS_thread_t& pt, Func f)
+{
+  os_thread_funcptr_deleter<abstract_thread> p(new launch_thread_impl<Func>(f));
+  int r = thread_create(&pt, launch_thread_routine, p.get());
+  if (r == 0)
+  {
+    p.release();
+  }
+  return r;
+}
+
 } // namespace ipcdetail
 } // namespace interprocess
 } // namespace libs
 } // namespace autodds
+
+#include "libs/interprocess/detail/config_end.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_DETAIL_OS_THREAD_FUNCTIONS_HPP_
