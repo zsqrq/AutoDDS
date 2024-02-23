@@ -26,6 +26,7 @@
 #include "libs/intrusive/pointer_traits.hpp"
 #include "libs/interprocess/file_mapping.hpp"
 #include "libs/interprocess/offset_ptr.hpp"
+#include "libs/interprocess/managed_mapped_file.hpp"
 
 template<class T>
 struct add_lvalue_reference
