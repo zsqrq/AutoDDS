@@ -43,7 +43,7 @@ struct mfile_open_or_create
       <segment_manager<CharType, AllocationAlgorithm, IndexType>>::value;
   static const std::size_t final_segment_manager_alignment = segment_maneger_alignment > AllocationAlgorithm::Alignment ?
       segment_maneger_alignment : AllocationAlgorithm::Alignment;
-  typedef ipcdetail::mana
+//  typedef ipcdetail::mana
 };
 
 } // namespace ipcdetail

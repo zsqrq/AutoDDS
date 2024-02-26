@@ -192,7 +192,7 @@ int main() {
 #ifdef AUTODDS_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
   std::cout << "bool has value_type: "<< hasDoSomethingMyClass <<std::endl;
 #endif
-  std::cout << "sizes : " << sizeof(unsigned int)<<"  " << ((CHAR_BIT/2))<<std::endl;
+  std::cout << "sizes : " << sizeof(unsigned int)<<"  " << __x86_64__<<std::endl;
 
 //  提问("大剑哥有多帅");
 //  回答;
