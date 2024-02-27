@@ -178,7 +178,7 @@ inline bool atomic_add_unless32(volatile autodds::libs::uint32_t* mem, autodds::
                                 autodds::libs::uint32_t unless_this)
 {
   autodds::libs::uint32_t old, c(atomic_read32(mem));
-  while (c != unless_this && (old = atomic_cas32(mem, c + valuem c)) != c)
+  while (c != unless_this && (old = atomic_cas32(mem, c + value, c)) != c)
   {
     c = old;
   }
