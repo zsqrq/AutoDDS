@@ -59,18 +59,19 @@ struct pointer_element_impl<Ptr, false>
   typedef typename first_param<Ptr>::type  type;
 };
 
+} // namespace detail
+
 template <typename Ptr>
 struct pointer_element
 {
-  typedef typename pointer_element_impl<Ptr>::type type;
+  typedef typename detail::pointer_element_impl<Ptr>::type type;
 };
 
 template <typename T>
 struct pointer_element<T*>
 {  typedef T type; };
 
-}
-}
-}
+} // namespace movelib
+} // namespace autodds
 
 #endif //AUTODDS_LIBS_MOVE_DETAIL_POINTER_ELEMENT_HPP_
