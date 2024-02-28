@@ -43,7 +43,7 @@ struct open_or_create_t {};
 
 //!Value to indicate that the resource must
 //!be only created
-static constexpr create_only_t creat_only = create_only_t();
+static constexpr create_only_t create_only = create_only_t();
 
 //!Value to indicate that the resource must
 //!be only opened
