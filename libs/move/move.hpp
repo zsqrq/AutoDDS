@@ -14,4 +14,9 @@
 #  pragma once
 #endif
 
+#include "libs/move/utility.hpp"
+#include "libs/move/iterator.hpp"
+#include "libs/move/traits.hpp"
+#include "libs/move/algorithm.hpp"
+
 #endif //AUTODDS_LIBS_MOVE_MOVE_HPP_

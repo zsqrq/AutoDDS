@@ -129,8 +129,8 @@ template<typename Tt, typename Ut>
 
 #ifdef AUTODDS_MOVE_IS_POD
 //in some compilers the intrinsic is limited to class types so add scalar and void
-#define AUTODDS_MOVE_IS_POD_IMPL(T) (std::is_scalar<T>::value ||\
-                                        std::is_void<T>::value   ||\
+#define AUTODDS_MOVE_IS_POD_IMPL(T) (::autodds::libs::move_detail::is_scalar<T>::value ||\
+                                        ::autodds::libs::move_detail::is_void<T>::value   ||\
                                         AUTODDS_MOVE_IS_POD(T))
 #else
 #define AUTODDS_MOVE_IS_POD_IMPL(T) \
@@ -144,15 +144,15 @@ template<typename Tt, typename Ut>
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_COPY
-#define AUTODDS_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T)   std::is_pod<T>::value ||\
-                                                          (std::is_copy_constructible<T>::value &&\
+#define AUTODDS_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T)   ::autodds::libs::move_detail::is_pod<T>::value ||\
+                                                          (::autodds::libs::move_detail::is_copy_constructible<T>::value &&\
                                                            AUTODDS_MOVE_HAS_TRIVIAL_COPY(T))
 #else
 #define AUTODDS_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T)   std::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_CONSTRUCTOR
-#define AUTODDS_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  AUTODDS_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  AUTODDS_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  std::is_pod<T>::value
 #endif
@@ -160,11 +160,11 @@ template<typename Tt, typename Ut>
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_MOVE_CONSTRUCTOR
 #define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE(T)   AUTODDS_MOVE_HAS_TRIVIAL_MOVE_CONSTRUCTOR(T) || std::is_pod<T>::value
 #else
-#define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE(T)   std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE(T)   ::autodds::libs::move_detail::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_ASSIGN
-#define AUTODDS_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T)  std::is_pod<T>::value ||\
+#define AUTODDS_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T)  ::autodds::libs::move_detail::is_pod<T>::value ||\
                                                       ( std::is_copy_assignable<T>::value &&\
                                                          AUTODDS_MOVE_HAS_TRIVIAL_ASSIGN(T))
 #else
@@ -174,41 +174,41 @@ template<typename Tt, typename Ut>
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_MOVE_ASSIGN
 #define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T)  AUTODDS_MOVE_HAS_TRIVIAL_MOVE_ASSIGN(T) || std::is_pod<T>::value
 #else
-#define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T)  std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T)  ::autodds::libs::move_detail::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR
-#define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)    AUTODDS_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) || std::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_CONSTRUCTOR
-#define AUTODDS_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  AUTODDS_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  AUTODDS_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  std::is_pod<T>::value
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_COPY
-#define AUTODDS_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   AUTODDS_MOVE_HAS_NOTHROW_COPY(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   AUTODDS_MOVE_HAS_NOTHROW_COPY(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   AUTODDS_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T)
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_ASSIGN
-#define AUTODDS_MOVE_IS_NOTHROW_COPY_ASSIGNABLE(T) AUTODDS_MOVE_HAS_NOTHROW_ASSIGN(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_NOTHROW_COPY_ASSIGNABLE(T) AUTODDS_MOVE_HAS_NOTHROW_ASSIGN(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_NOTHROW_COPY_ASSIGNABLE(T) AUTODDS_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T)
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_MOVE_CONSTRUCTOR
-#define AUTODDS_MOVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE(T)   AUTODDS_MOVE_HAS_NOTHROW_MOVE_CONSTRUCTOR(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE(T)   AUTODDS_MOVE_HAS_NOTHROW_MOVE_CONSTRUCTOR(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE(T)   AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T)
 #endif
 
 #ifdef AUTODDS_MOVE_HAS_NOTHROW_MOVE_ASSIGN
-#define AUTODDS_MOVE_IS_NOTHROW_MOVE_ASSIGNABLE(T) AUTODDS_MOVE_HAS_NOTHROW_MOVE_ASSIGN(T) || std::is_pod<T>::value
+#define AUTODDS_MOVE_IS_NOTHROW_MOVE_ASSIGNABLE(T) AUTODDS_MOVE_HAS_NOTHROW_MOVE_ASSIGN(T) || ::autodds::libs::move_detail::is_pod<T>::value
 #else
 #define AUTODDS_MOVE_IS_NOTHROW_MOVE_ASSIGNABLE(T) AUTODDS_MOVE_IS_TRIVIALLY_MOVE_ASSIGNABLE(T)
 #endif
