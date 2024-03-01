@@ -71,7 +71,7 @@ template <typename DeviceAbstraction, std::size_t MemAlignment, bool FileBased, 
 class managed_open_or_create_impl :
     public managed_open_or_create_impl_device_holder<StoreDevice, DeviceAbstraction>
 {
- AUTODDS_MOVABLE_BUT_NOT_COPYABLE(managed_open_or_create_impl)
+  AUTODDS_MOVABLE_BUT_NOT_COPYABLE(managed_open_or_create_impl)
   typedef bool_<FileBased> file_like_t;
 
   static const unsigned MaxCreateOrOpenTries = AUTODDS_INTERPROCESS_MANAGED_OPEN_OR_CREATE_INITIALIZE_MAX_TRIES;
@@ -274,7 +274,7 @@ class managed_open_or_create_impl :
         mapped_region region(dev, read_write, 0, 0, addr);
         autodds::libs::uint32_t* patmic_world = 0;
         patmic_world = static_cast<autodds::libs::uint32_t*>(region.get_address());
-        autodds::libs::uint32_t previous = atomic_cas32(patmic_world, InitializedSegment, UninitializedSegment);
+        autodds::libs::uint32_t previous = atomic_cas32(patmic_world, InitializingSegment, UninitializedSegment);
 
         if(previous == UninitializedSegment){
           AUTODDS_TRY{

@@ -14,4 +14,13 @@
 #  pragma once
 #endif
 
+#include "libs/interprocess/detail/config_begin.hpp"
+#include "libs/interprocess/detail/workaround.hpp"
+#include "libs/interprocess/interprocess_fwd.hpp"
+#include "libs/interprocess/detail/utilities.hpp"
+#include "libs/interprocess/detail/os_file_functions.hpp"
+#include "libs/interprocess/creation_tags.hpp"
+#include "libs/interprocess/exceptions.hpp"
+#include "libs/interprocess/segment_manager.hpp"
+
 #endif //AUTODDS_LIBS_INTERPROCESS_DETAIL_MANAGED_MEMORY_IMPL_HPP_
