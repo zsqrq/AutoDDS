@@ -20,4 +20,8 @@
 #include "libs/interprocess/detail/type_traits.hpp"
 #include "libs/interprocess/detail/transform_iterator.hpp"
 
+#include "libs/interprocess/detail/mpl.hpp"
+#include "libs/interprocess/detail/nothrow.hpp"
+#include "libs/interprocess/detail/segment_manager_helper.hpp"
+
 #endif //AUTODDS_LIBS_INTERPROCESS_SEGMENT_MANAGER_HPP_

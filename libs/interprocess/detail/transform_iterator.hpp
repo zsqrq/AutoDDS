@@ -19,4 +19,15 @@
 #include "libs/interprocess/interprocess_fwd.hpp"
 #include "libs/container/detail/transform_iterator.hpp"
 
+namespace autodds {
+namespace libs {
+namespace interprocess {
+
+using autodds::libs::container::make_transform_iterator;
+using autodds::libs::container::transform_iterator;
+
+} // namespace interprocess
+} // namespace libs
+} // namespace autodds
+
 #endif //AUTODDS_LIBS_INTERPROCESS_DETAIL_TRANSFORM_ITERATOR_HPP_
