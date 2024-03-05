@@ -48,7 +48,7 @@ enum instance_type
 
 namespace ipcdetail {
 
-template<class MemoryAlgorithm>
+template <typename MemoryAlgorithm>
 class mem_algo_deallocator {
   void *m_ptr;
   MemoryAlgorithm &m_algo;
@@ -66,12 +66,13 @@ class mem_algo_deallocator {
   }
 };
 
-template<typename size_type>
-struct block_header {
-  size_type m_value_bytes;
-  unsigned short m_num_char;
-  unsigned char m_value_alignment;
-  unsigned char m_alloc_type_sizeof_char;
+template <typename size_type>
+struct block_header
+{
+  size_type       m_value_bytes;
+  unsigned short  m_num_char;
+  unsigned char   m_value_alignment;
+  unsigned char   m_alloc_type_sizeof_char;
 
   block_header(size_type val_bytes,
                size_type val_alignment,
@@ -203,13 +204,13 @@ inline void array_construct(void *mem, std::size_t num, in_place_interface &tabl
   std::size_t constructed = 0;
   AUTODDS_TRY{
       table.construct_n(mem, num, constructed);
-  }
-  //If there is an exception call destructors and erase index node
-  AUTODDS_CATCH(...){
-    std::size_t destroyed = 0;
-    table.destroy_n(mem, constructed, destroyed);
-    AUTODDS_RETHROW
-  } AUTODDS_CATCH_END
+    }
+      //If there is an exception call destructors and erase index node
+    AUTODDS_CATCH(...){
+      std::size_t destroyed = 0;
+      table.destroy_n(mem, constructed, destroyed);
+      AUTODDS_RETHROW
+    } AUTODDS_CATCH_END
 }
 
 template <typename CharT>

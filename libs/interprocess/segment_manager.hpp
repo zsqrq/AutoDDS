@@ -23,5 +23,6 @@
 #include "libs/interprocess/detail/mpl.hpp"
 #include "libs/interprocess/detail/nothrow.hpp"
 #include "libs/interprocess/detail/segment_manager_helper.hpp"
+#include "libs/interprocess/detail/named_proxy.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_SEGMENT_MANAGER_HPP_
