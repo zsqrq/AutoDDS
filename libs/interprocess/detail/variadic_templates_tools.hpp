@@ -16,4 +16,19 @@
 
 #include "libs/container/detail/variadic_templates_tools.hpp"
 
+namespace autodds {
+namespace libs {
+namespace interprocess {
+namespace ipcdetail {
+
+using autodds::libs::container::dtl::tuple;
+using autodds::libs::container::dtl::build_number_seq;
+using autodds::libs::container::dtl::index_tuple;
+using autodds::libs::container::dtl::get;
+
+} // namespace ipcdetail
+} // namespace interprocess
+} // namespace libs
+} // namespace autodds
+
 #endif //AUTODDS_LIBS_INTERPROCESS_DETAIL_VARIADIC_TEMPLATES_TOOLS_HPP_

@@ -14,4 +14,13 @@
 #  pragma once
 #endif
 
+#include <cstddef>
+struct autodds_container_new_t{};
+
+inline void* operator new(std::size_t, void* p, autodds_container_new_t)
+{ return p; }
+
+inline void operator delete(void*, void*, autodds_container_new_t)
+{}
+
 #endif //AUTODDS_LIBS_CONTAINER_DETAIL_PLACEMENT_NEW_HPP_
