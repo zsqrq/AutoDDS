@@ -75,10 +75,31 @@ struct pointer_plus_bits<T*, NumBits>
     pointer(uintptr_t(n) & uintptr_t(~Mask));
   }
 
+  AUTODDS_INTRUSIVE_FORCEINLINE static void set_pointer(pointer &n, pointer p) AUTODDS_NOEXCEPT
+  {
+    AUTODDS_INTRUSIVE_INVARIANT_ASSERT(0 == (uintptr_t(p) & Mask));
+    n = pointer(uintptr_t(p) | (uintptr_t(n) & Mask));
+  }
+
+  AUTODDS_INTRUSIVE_FORCEINLINE static std::size_t get_bits(pointer n) AUTODDS_NOEXCEPT
+  {  
+    return std::size_t(uintptr_t(n) & Mask); 
+  }
+
+  AUTODDS_INTRUSIVE_FORCEINLINE static void set_bits(pointer &n, std::size_t c) AUTODDS_NOEXCEPT
+  {
+    AUTODDS_INTRUSIVE_INVARIANT_ASSERT(uintptr_t(c) <= Mask);
+    n = pointer(uintptr_t((get_pointer)(n)) | uintptr_t(c));
+  }
+
 };
 
 } // namespace intrusive
 } // namespace libs
 } // namespace autodds
+
+#if defined(AUTODDS_GCC) && (AUTODDS_GCC >= 40600)
+#  pragma GCC diagnostic pop
+#endif
 
 #endif //AUTODDS_LIBS_INTRUSIVE_POINTER_PLUS_BITS_HPP_
