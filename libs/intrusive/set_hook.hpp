@@ -27,7 +27,32 @@ namespace intrusive {
 template<typename ...Options>
 struct make_set_base_hook
 {
-  typedef typename pac
+  typedef typename pack_options<hook_defaults,Options...>::type                    packed_options;
+  typedef generic_hook<RbTreeAlgorithms,
+                       rbtree_node_traits<typename packed_options::void_pointer,packed_options::optimize_size>,
+                       typename packed_options::tag, packed_options::link_mode,
+                       RbTreeBaseHookId>                                           implementation_defined;
+  typedef implementation_defined                                                   type;
+};
+
+template<typename ...Options>
+class set_base_hook : public make_set_base_hook<Options...>::type {};
+
+template<typename ...Options>
+struct make_set_member_hook
+{
+  typedef typename pack_options<hook_defaults, Options...>::type                  packed_options;
+  typedef generic_hook<RbTreeAlgorithms,
+                       rbtree_node_traits<typename packed_options::void_pointer, packed_options::optimize_size>,
+                       member_tag, packed_options::link_mode,
+                       NoBaseHookId>                                              implementation_defined;
+  typedef implementation_defined                                                  type;
+};
+
+template<typename ...Options>
+ class set_member_hook : public make_set_member_hook<Options...>::type 
+{
+
 };
 
 } // namespace intrusive

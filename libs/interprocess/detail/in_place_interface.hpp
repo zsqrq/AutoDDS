@@ -55,7 +55,7 @@ struct placement_destroy : public in_place_interface
     }
   }
 
-  virtual void construct_n(void *, std::size_t, std::size_t &) BOOST_OVERRIDE {}
+  virtual void construct_n(void *, std::size_t, std::size_t &) AUTODDS_OVERRIDE {}
 
  private:
   void destroy(void* mem)
