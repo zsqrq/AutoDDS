@@ -10,6 +10,8 @@
 #endif
 
 #include "libs/move/detail/workaround.hpp"
+#include "libs/move/detail/addressof.hpp"
+#include "libs/move/detail/meta_utils_core.hpp"
 #include <cstddef>
 #include <type_traits>
 
