@@ -50,7 +50,7 @@ struct make_set_member_hook
 };
 
 template<typename ...Options>
- class set_member_hook : public make_set_member_hook<Options...>::type 
+ class set_member_hook : public make_set_member_hook<Options...>::type
 {
 
 };
