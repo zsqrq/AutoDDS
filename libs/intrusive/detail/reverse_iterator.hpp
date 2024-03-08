@@ -19,12 +19,10 @@
 namespace autodds {
 namespace libs {
 namespace intrusive {
-namespace detail {
 
 using autodds::libs::movelib::reverse_iterator;
 using autodds::libs::movelib::make_reverse_iterator;
 
-} // namespace detail
 } // namespace intrusive
 } // namespace libs
 } // namespace autodds
