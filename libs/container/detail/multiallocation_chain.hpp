@@ -17,5 +17,11 @@
 #include "libs/container/detail/config_begin.hpp"
 #include "libs/container/detail/workaround.hpp"
 #include "libs/container/container_fwd.hpp"
+#include "libs/move/detail/to_raw_pointer.hpp"
+#include "libs/container/detail/transform_iterator.hpp"
+#include "libs/container/detail/type_traits.hpp"
+#include "libs/container/detail/placement_new.hpp"
+#include "libs/intrusive/slist.hpp"
+
 
 #endif //AUTODDS_LIBS_CONTAINER_DETAIL_MULTIALLOCATION_CHAIN_HPP_

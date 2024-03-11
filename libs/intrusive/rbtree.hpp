@@ -166,7 +166,7 @@ class rbtree : public make_rbtree<T, Options...>::type
   typedef typename Base::reverse_iterator           reverse_iterator;
   typedef typename Base::const_reverse_iterator     const_reverse_iterator;
 
-  OOST_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
+  AUTODDS_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
 
   AUTODDS_INTRUSIVE_FORCEINLINE rbtree()
       :  Base()

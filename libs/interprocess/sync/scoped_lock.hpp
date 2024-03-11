@@ -64,7 +64,7 @@ class scoped_lock
 
   template<class TimePoint>
   scoped_lock(mutex_type& m, const TimePoint& abs_time)
-      : mp_mutex(&m), m_locked(mp_mutex->timed_lock(abs_time*))
+      : mp_mutex(&m), m_locked(mp_mutex->timed_lock(abs_time))
   {}
 
   scoped_lock(AUTODDS_RV_REF(scoped_lock) scop) AUTODDS_NOEXCEPT
