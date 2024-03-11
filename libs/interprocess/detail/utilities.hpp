@@ -41,7 +41,7 @@ inline T* to_raw_pointer(T* p)
 { return p;}
 
 template <typename Ptr>
-inline typename autodds::intrusive::pointer_traits<Ptr>::element_type*
+inline typename autodds::libs::intrusive::pointer_traits<Ptr>::element_type*
 to_raw_pointer(AUTODDS_LV_CONST_REF(Ptr,p))
 { return autodds::libs::interprocess::ipcdetail::to_raw_pointer(p.operator->()); }
 

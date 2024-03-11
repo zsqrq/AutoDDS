@@ -25,7 +25,7 @@ namespace libs {
 namespace intrusive {
 namespace detail {
 
-using autodds::intrusive::detail::if_c;
+using autodds::libs::intrusive::detail::if_c;
 
 template<class F, class ValueTraits, algo_types AlgoType, bool IsConst = true>
 struct node_cloner

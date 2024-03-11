@@ -48,7 +48,7 @@ struct max_pointer_plus_bits
 template<std::size_t Alignment>
 struct max_pointer_plus_bits<void*, Alignment>
 {
-  static const std::size_t value = ::autodds::intrusive::detail::ls_zeros<Alignment>::value;
+  static const std::size_t value = ::autodds::libs::intrusive::detail::ls_zeros<Alignment>::value;
 };
 
 //!This is class that is supposed to have static methods

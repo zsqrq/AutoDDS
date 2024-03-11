@@ -29,11 +29,11 @@ template<typename T, typename SegmentManager>
 class deleter
 {
  public:
-  typedef typename autodds::intrusive::pointer_traits
+  typedef typename autodds::libs::intrusive::pointer_traits
       <typename SegmentManager::void_pointer>::template
           rebind_pointer<T>::type                               pointer;
  private:
-  typedef typename autodds::intrusive::pointer_traits
+  typedef typename autodds::libs::intrusive::pointer_traits
   <pointer>::template rebind_pointer<SegmentManager>::type      segment_manager_pointer;
 
   segment_manager_pointer mp_manager;

@@ -46,7 +46,7 @@ class tree_iterator
   class nat;
 
   typedef typename
-  autodds::intrusive::detail::if_c< IsConst
+  autodds::libs::intrusive::detail::if_c< IsConst
       , tree_iterator<value_traits, false>
       , nat>::type                           nonconst_iterator;
 
@@ -142,7 +142,7 @@ class tree_iterator
   {  return *operator->();   }
 
   AUTODDS_INTRUSIVE_FORCEINLINE pointer operator->() const
-  { return this->operator_arrow(autodds::intrusive::detail::bool_<stateful_value_traits>()); }
+  { return this->operator_arrow(autodds::libs::intrusive::detail::bool_<stateful_value_traits>()); }
 
   AUTODDS_INTRUSIVE_FORCEINLINE const_value_traits_ptr get_value_traits() const
   {  return members_.get_ptr();  }
@@ -156,10 +156,10 @@ class tree_iterator
   {  return tree_iterator<value_traits, false>(this->pointed_node(), this->get_value_traits());   }
 
  private:
-  AUTODDS_INTRUSIVE_FORCEINLINE pointer operator_arrow(autodds::intrusive::detail::false_) const
+  AUTODDS_INTRUSIVE_FORCEINLINE pointer operator_arrow(autodds::libs::intrusive::detail::false_) const
   { return ValueTraits::to_value_ptr(members_.nodeptr_); }
 
-  AUTODDS_INTRUSIVE_FORCEINLINE pointer operator_arrow(autodds::intrusive::detail::true_) const
+  AUTODDS_INTRUSIVE_FORCEINLINE pointer operator_arrow(autodds::libs::intrusive::detail::true_) const
   { return this->get_value_traits()->to_value_ptr(members_.nodeptr_); }
 
   iiterator_members<node_ptr, const_value_traits_ptr, stateful_value_traits> members_;

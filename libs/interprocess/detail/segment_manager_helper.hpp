@@ -334,10 +334,10 @@ class char_ptr_holder
 template<typename CharT, typename VoidPointer>
 struct index_key
 {
-  typedef typename autodds::intrusive::pointer_traits<VoidPointer>::template
+  typedef typename autodds::libs::intrusive::pointer_traits<VoidPointer>::template
   rebind_pointer<const CharT>::type                     const_char_ptr_t;
   typedef CharT                                         char_type;
-  typedef typename autodds::intrusive::pointer_traits<const_char_ptr_t>::difference_type difference_type;
+  typedef typename autodds::libs::intrusive::pointer_traits<const_char_ptr_t>::difference_type difference_type;
   typedef typename autodds::libs::move_detail::make_unsigned<difference_type>::type size_type;
 
  private:

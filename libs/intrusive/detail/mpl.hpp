@@ -18,6 +18,7 @@
 #include "libs/move/detail/meta_utils.hpp"
 
 namespace autodds {
+namespace libs {
 namespace intrusive {
 namespace detail {
 
@@ -96,7 +97,7 @@ struct ls_zeros<1>
       struct DefaultWrap { typedef DefaultType TNAME; };          \
                                                                   \
       typedef typename                                            \
-         ::autodds::intrusive::detail::if_c                       \
+         ::autodds::libs::intrusive::detail::if_c                       \
             < autodds_intrusive_has_type_ ## TNAME<T>::value      \
             , T, DefaultWrap>::type::TNAME type;                  \
    };                                                             \
@@ -128,10 +129,10 @@ struct ls_zeros<1>
       static const bool value = (1 == sizeof(test<T>(0, 0)));     \
                                                                   \
       typedef typename                                            \
-         ::autodds::intrusive::detail::eval_if_c                    \
+         ::autodds::libs::intrusive::detail::eval_if_c                    \
             < value                                               \
-            , ::autodds::intrusive::detail::identity<T>             \
-            , ::autodds::intrusive::detail::identity<DefaultWrap>   \
+            , ::autodds::libs::intrusive::detail::identity<T>             \
+            , ::autodds::libs::intrusive::detail::identity<DefaultWrap>   \
             >::type::TNAME type;                                  \
    };                                                             \
 //
@@ -167,10 +168,10 @@ struct TRAITS_PREFIX##_bool_is_true                                             
   private: \
   template<Signature> struct helper;\
   template<typename T> \
-  static ::autodds::intrusive::detail::yes_type test(helper<&T::FUNC_NAME>*); \
-  template<typename T> static ::autodds::intrusive::detail::no_type test(...); \
+  static ::autodds::libs::intrusive::detail::yes_type test(helper<&T::FUNC_NAME>*); \
+  template<typename T> static ::autodds::libs::intrusive::detail::no_type test(...); \
   public: \
-  static const bool value = sizeof(test<U>(0)) == sizeof(::autodds::intrusive::detail::yes_type); \
+  static const bool value = sizeof(test<U>(0)) == sizeof(::autodds::libs::intrusive::detail::yes_type); \
   }; \
 //
 
@@ -185,9 +186,9 @@ struct TRAITS_NAME \
    struct Base : public Type, public BaseMixin { Base(); }; \
    template <typename T, T t> class Helper{}; \
    template <typename U> \
-   static autodds::intrusive::detail::no_type  test(U*, Helper<void (BaseMixin::*)(), &U::FUNC_NAME>* = 0); \
-   static autodds::intrusive::detail::yes_type test(...); \
-   static const bool value = sizeof(::autodds::intrusive::detail::yes_type) == sizeof(test((Base*)(0))); \
+   static autodds::libs::intrusive::detail::no_type  test(U*, Helper<void (BaseMixin::*)(), &U::FUNC_NAME>* = 0); \
+   static autodds::libs::intrusive::detail::yes_type test(...); \
+   static const bool value = sizeof(::autodds::libs::intrusive::detail::yes_type) == sizeof(test((Base*)(0))); \
 };\
 //
 
@@ -200,8 +201,9 @@ struct TRAITS_NAME \
 {};\
 //
 
-}
-}
-}
+} // namespace detail
+} // namespace intrusive
+} // namespace libs
+} // namespace autodds
 
 #endif //AUTODDS_LIBS_INTRUSIVE_DETAIL_MPL_HPP_

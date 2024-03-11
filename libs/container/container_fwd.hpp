@@ -29,8 +29,8 @@ namespace libs {
 namespace container {
 namespace dtl {
 
-namespace ati = autodds::intrusive;
-namespace atid = autodds::intrusive::detail;
+namespace ati = autodds::libs::intrusive;
+namespace atid = autodds::libs::intrusive::detail;
 
 } // namespace dtl
 } // namespace container
@@ -42,8 +42,8 @@ namespace libs {
 namespace container {
 namespace pmr {
 
-namespace ati = autodds::intrusive;
-namespace atid = autodds::intrusive::detail;
+namespace ati = autodds::libs::intrusive;
+namespace atid = autodds::libs::intrusive::detail;
 
 } // namespace dtl
 } // namespace container

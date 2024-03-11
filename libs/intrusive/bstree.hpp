@@ -249,7 +249,7 @@ struct get_key_of_value
 template<typename T>
 struct get_key_of_value<void, T>
 {
-  typedef ::autodds::intrusive::detail::identity<T> type;
+  typedef ::autodds::libs::intrusive::detail::identity<T> type;
 };
 
 template<typename ValuePtr, typename VoidOrKeyOfValue, typename VoidOrKeyComp>
@@ -479,7 +479,7 @@ struct bstbase2 : public detail::ebo_functor_holder<typename bst_key_types<
 
   template<class KeyType, class KeyTypeKeyCompare>
   AUTODDS_INTRUSIVE_DOC1ST(std::pair<iterator AUTODDS_INTRUSIVE_I bool>
-  , typename autodds::intrusive::detail::disable_if_convertible
+  , typename autodds::libs::intrusive::detail::disable_if_convertible
       <KeyType AUTODDS_INTRUSIVE_I const_iterator AUTODDS_INTRUSIVE_I
                                std::pair<iterator AUTODDS_INTRUSIVE_I bool> >::type)
   insert_unique_check
@@ -929,7 +929,7 @@ class bstree_impl
   //!   according to the comparison functor "comp".
   template<typename KeyType, typename KeyTypeKeyCompare>
   AUTODDS_INTRUSIVE_DOC1ST(size_type
-  , typename autodds::intrusive::detail::disable_if_convertible<KeyTypeKeyCompare AUTODDS_INTRUSIVE_I const_iterator AUTODDS_INTRUSIVE_I size_type>::type)
+  , typename autodds::libs::intrusive::detail::disable_if_convertible<KeyTypeKeyCompare AUTODDS_INTRUSIVE_I const_iterator AUTODDS_INTRUSIVE_I size_type>::type)
   erase(const KeyType& key, KeyTypeKeyCompare comp)
   {
     std::pair<iterator,iterator> p = this->equal_range(key, comp);
@@ -968,7 +968,7 @@ class bstree_impl
   //!   and nk the key_type of a value_type inserted into `*this`.
   template<class KeyType, class KeyTypeKeyCompare, class Disposer>
   AUTODDS_INTRUSIVE_DOC1ST(size_type
-  , typename autodds::intrusive::detail::disable_if_convertible<KeyTypeKeyCompare AUTODDS_INTRUSIVE_I const_iterator AUTODDS_INTRUSIVE_I size_type>::type)
+  , typename autodds::libs::intrusive::detail::disable_if_convertible<KeyTypeKeyCompare AUTODDS_INTRUSIVE_I const_iterator AUTODDS_INTRUSIVE_I size_type>::type)
   erase_and_dispose(const KeyType& key, KeyTypeKeyCompare comp, Disposer disposer)
   {
     std::pair<iterator,iterator> p = this->equal_range(key, comp);

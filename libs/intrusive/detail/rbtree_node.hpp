@@ -170,7 +170,7 @@ struct rbtree_node_traits_dispatch<VoidPointer, true>
     :  public compact_rbtree_node_traits_impl<VoidPointer>
 {};
 
-using autodds::intrusive::detail::alignment_of;
+using autodds::libs::intrusive::detail::alignment_of;
 //Inherit from rbtree_node_traits_dispatch depending on the embedding capabilities
 template<typename VoidPointer, bool OptimizeSize = false>
 struct rbtree_node_traits

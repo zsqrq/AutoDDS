@@ -23,10 +23,10 @@ namespace libs {
 namespace intrusive {
 namespace detail {
 
-using autodds::intrusive::detail::disable_if_c;
-using autodds::intrusive::detail::is_same;
-using autodds::intrusive::detail::identity;
-using autodds::intrusive::detail::enable_if_c;
+using autodds::libs::intrusive::detail::disable_if_c;
+using autodds::libs::intrusive::detail::is_same;
+using autodds::libs::intrusive::detail::identity;
+using autodds::libs::intrusive::detail::enable_if_c;
 
 template < class KeyTypeKeyCompare
     , class ValueTraits

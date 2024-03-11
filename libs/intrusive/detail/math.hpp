@@ -101,12 +101,12 @@ struct numbits_eq
 template<typename SizeType, typename Enabler = void >
 struct sqrt2_pow_max;
 
-using ::autodds::intrusive::detail::voider;
-using ::autodds::intrusive::detail::enable_if;
+using ::autodds::libs::intrusive::detail::voider;
+using ::autodds::libs::intrusive::detail::enable_if;
 
 template <typename SizeType>
-struct sqrt2_pow_max<SizeType, typename ::autodds::intrusive::detail::voider<
-    typename ::autodds::intrusive::detail::enable_if< numbits_eq<SizeType, 32> >::type>::type>
+struct sqrt2_pow_max<SizeType, typename ::autodds::libs::intrusive::detail::voider<
+    typename ::autodds::libs::intrusive::detail::enable_if< numbits_eq<SizeType, 32> >::type>::type>
 {
   static const SizeType value = 0xb504f334;
   static const std::size_t pow   = 31;

@@ -91,8 +91,8 @@ struct get_member_value_traits
 AUTODDS_INTRUSIVE_INTERNAL_STATIC_BOOL_IS_TRUE(internal_any_hook, is_any_hook)
 AUTODDS_INTRUSIVE_INTERNAL_STATIC_BOOL_IS_TRUE(internal_base_hook, hooktags::is_base_hook)
 
-using autodds::intrusive::detail::no_type;
-using autodds::intrusive::detail::yes_type;
+using autodds::libs::intrusive::detail::no_type;
+using autodds::libs::intrusive::detail::yes_type;
 
 template <class T>
 struct internal_member_value_traits

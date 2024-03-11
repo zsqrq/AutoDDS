@@ -23,13 +23,13 @@ namespace autodds {
 namespace libs {
 namespace intrusive {
 
-using autodds::intrusive::detail::disable_if_c;
-using autodds::intrusive::detail::is_same;
+using autodds::libs::intrusive::detail::disable_if_c;
+using autodds::libs::intrusive::detail::is_same;
 
 template<typename From, typename ValuePtr>
 struct disable_if_smartref_to : public disable_if_c<
-    is_same<From, typename autodds::intrusive::pointer_traits<ValuePtr>::reference>::value || 
-    is_same<From, typename autodds::intrusive::pointer_traits<typename pointer_rebind<ValuePtr,
+    is_same<From, typename autodds::libs::intrusive::pointer_traits<ValuePtr>::reference>::value ||
+    is_same<From, typename autodds::libs::intrusive::pointer_traits<typename pointer_rebind<ValuePtr,
     const typename autodds::movelib::pointer_element<ValuePtr>::type>::type>::reference>::value>
 {};
 

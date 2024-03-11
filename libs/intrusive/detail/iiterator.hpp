@@ -28,7 +28,7 @@ template<typename ValueTraits>
 struct value_traits_pointers
 {
   typedef AUTODDS_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT
-  (autodds::intrusive::detail::
+  (autodds::libs::intrusive::detail::
   , ValueTraits, value_traits_ptr
   , typename autodds::libs::intrusive::pointer_traits<typename ValueTraits::node_traits::node_ptr>::template
        rebind_pointer<ValueTraits>::type)   value_traits_ptr;
@@ -55,9 +55,9 @@ struct iiterator
   typedef typename ::autodds::libs::intrusive::pointer_traits
       <yesconst_pointer>::reference                            yesconst_reference;
   typedef typename nodepointer_traits_t::difference_type      difference_type;
-  typedef typename autodds::intrusive::detail::if_c
+  typedef typename autodds::libs::intrusive::detail::if_c
       <IsConst, yesconst_pointer, nonconst_pointer>::type      pointer;
-  typedef typename autodds::intrusive::detail::if_c
+  typedef typename autodds::libs::intrusive::detail::if_c
       <IsConst, yesconst_reference, nonconst_reference>::type  reference;
   typedef iterator< Category
       , value_type
