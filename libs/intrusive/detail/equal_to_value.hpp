@@ -22,12 +22,12 @@ namespace intrusive {
 namespace detail {
 
 template<typename ConstReference>
-class euqal_to_value
+class equal_to_value
 {
   ConstReference t_;
 
  public:
-  euqal_to_value(ConstReference t)
+  equal_to_value(ConstReference t)
       : t_(t)
   {}
 
