@@ -21,5 +21,15 @@
 #include "libs/interprocess/containers/allocation_type.hpp"
 #include "libs/container/detail/multiallocation_chain.hpp"
 #include "libs/interprocess/allocators/detail/allocator_common.hpp"
+#include "libs/interprocess/detail/utilities.hpp"
+#include "libs/interprocess/containers/version_type.hpp"
+#include "libs/interprocess/exceptions.hpp"
+#include "libs/common/assert.hpp"
+#include "libs/core/addressof.hpp"
+#include "libs/interprocess/detail/type_traits.hpp"
+#include "libs/container/detail/placement_new.hpp"
+
+#include <cstddef>
+#include <stdexcept>
 
 #endif //AUTODDS_LIBS_INTERPROCESS_ALLOCATORS_ALLOCATOR_HPP_
