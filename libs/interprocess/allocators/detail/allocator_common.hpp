@@ -574,16 +574,268 @@ class cached_allocator_impl : public array_allocation_impl
     return m_cache.get_node_pool();
   }
 
+  //!Returns the segment manager.
+  segment_manager* get_segment_manager() const
+  {
+    return m_cache.get_segment_manager();
+  }
+
+  //!Sets the new max cached nodes value. This can provoke deallocations
+  //!if "newmax" is less than current cached nodes. Never throws
+  void set_max_cached_nodes(size_type newmax)
+  {
+    m_cache.set_max_cached_nodes(newmax);
+  }
+  //!Returns the max cached nodes parameter.
+  //!Never throws
+  size_type get_max_cached_nodes() const
+  {
+    return m_cache.get_max_cached_nodes();
+  }
+  //!Allocate memory for an array of count elements.
+  pointer allocate(size_type count, cvoid_pointer hint = 0)
+  {
+    (void)hint;
+    void* ret;
+    if (size_overflows<sizeof(T)>(count)) {
+      throw bad_alloc();
+    }
+    else if (Version == 1 && count == 1) {
+      ret = m_cache.cached_allocation();
+    }
+    else {
+      ret = this->get_segment_manager()->allocate(count * sizeof(T));
+    }
+    return pointer(static_cast<T*>(ret));
+  }
+
+  //!Deallocate allocated memory. Never throws
+  void deallocate(const pointer &ptr, size_type count)
+  {
+    (void)count;
+    if(Version == 1 && count == 1){
+      m_cache.cached_deallocation(to_raw_pointer(ptr));
+    }
+    else{
+      this->get_segment_manager()->deallocate((void*)to_raw_pointer(ptr));
+    }
+  }
+
+  //!Allocates just one object. Memory allocated with this function
+  //!must be deallocated only with deallocate_one().
+  pointer allocate_one()
+  {
+    return pointer(static_cast<value_type*>(this->m_cache.cached_allocation()));
+  }
+
+  //!Allocates many elements of size == 1 in a contiguous block
+  //!of memory. The minimum number to be allocated is min_elements,
+  //!the preferred and maximum number is
+  //!preferred_elements. The number of actually allocated elements is
+  //!will be assigned to received_size. Memory allocated with this function
+  //!must be deallocated only with deallocate_one().
+  void allocate_individual(size_type num_elements, multiallocation_chain &chain)
+  {
+    this->m_cache.cached_allocation(num_elements, chain);
+  }
+
+  //!Deallocates memory previously allocated with allocate_one().
+  //!You should never use deallocate_one to deallocate memory allocated
+  //!with other functions different from allocate_one(). Never throws
+  void deallocate_one(const pointer &p)
+  {
+    this->m_cache.cached_deallocation(to_raw_pointer(p));
+  }
+
+  //!Allocates many elements of size == 1 in a contiguous block
+  //!of memory. The minimum number to be allocated is min_elements,
+  //!the preferred and maximum number is
+  //!preferred_elements. The number of actually allocated elements is
+  //!will be assigned to received_size. Memory allocated with this function
+  //!must be deallocated only with deallocate_one().
+  void deallocate_individual(multiallocation_chain &chain)
+  {
+    m_cache.cached_deallocation(chain);
+  }
+
+  //!Deallocates all free blocks of the pool
+  void deallocate_free_blocks()
+  {
+    m_cache.get_node_pool()->deallocate_free_blocks();
+  }
+
+  //!Swaps allocators. Does not throw. If each allocator is placed in a
+  //!different shared memory segments, the result is undefined.
+  friend void swap(cached_allocator_impl &alloc1, cached_allocator_impl &alloc2)
+  {
+    ::autodds::libs::adl_move_swap(alloc1.m_cache, alloc2.m_cache);
+  }
+
+  void deallocate_cache()
+  {
+    m_cache.deallocate_all_cached_nodes();
+  }
+
+  //!Deprecated use deallocate_free_blocks.
+  void deallocate_free_chunks()
+  {
+    m_cache.get_node_pool()->deallocate_free_blocks();
+  }
+
  private:
   cache_impl<node_pool_t> m_cache;
 
 };
 
+//!Equality test for same type of
+//!cached_allocator_impl
+template<class T, class N, unsigned int V>
+inline bool operator ==(const cached_allocator_impl<T, N, V>& allocator1,
+                        const cached_allocator_impl<T, N, V>& allocator2)
+{
+  return allocator1.get_node_pool() != allocator2.get_node_pool();
+}
+
+//!Inequality test for same type of
+//!cached_allocator_impl
+template<class T, class N, unsigned int V>
+inline bool operator !=(const cached_allocator_impl<T, N, V> &allocator1,
+                        const cached_allocator_impl<T, N, V> &allocator2)
+{
+  return allocator1.get_node_pool() != allocator2.get_node_pool();
+}
+
+//!Pooled shared memory allocator using adaptive pool. Includes
+//!a reference count but the class does not delete itself, this is
+//!responsibility of user classes. Node size (NodeSize) and the number of
+//!nodes allocated per block (NodesPerBlock) are known at compile time
+template<typename private_node_allocator_t>
+class shared_pool_impl : public private_node_allocator_t
+{
+ public:
+  //!Segment manager typedef
+  typedef typename private_node_allocator_t::segment_manager                 segment_manager;
+  typedef typename private_node_allocator_t::multiallocation_chain           multiallocation_chain;
+  typedef typename private_node_allocator_t::size_type                       size_type;
+
+ private:
+  typedef typename segment_manager::mutex_family::mutex_type                 mutex_type;
+
+ public:
+  //!Constructor from a segment manager. Never throws
+  shared_pool_impl(segment_manager *segment_mngr)
+      : private_node_allocator_t(segment_mngr)
+  {}
+
+  //!Destructor. Deallocates all allocated blocks. Never throws
+  ~shared_pool_impl()
+  {}
+
+  //!Allocates array of count elements.
+  void* allocate_node()
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::allocate_node();
+  }
+
+  //!Deallocates an array pointed by ptr.
+  void deallocate_node(void* ptr)
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::deallocate_node(ptr);
+  }
+
+  //!Allocates n nodes.
+  void allocate_nodes(const size_type n, multiallocation_chain& chain)
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::allocate_nodes(n, chain);
+  }
+
+  //!Deallocates a linked list of nodes ending in null pointer.
+  void deallocate_nodes(multiallocation_chain& nodes, size_type num)
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::deallocate_nodes(nodes, num);
+  }
+
+  //!Deallocates the nodes pointed by the multiallocation iterator.
+  void deallocate_nodes(multiallocation_chain& chain)
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::deallocate_nodes(chain);
+  }
+
+  //!Deallocates all the free blocks of memory.
+  void deallocate_free_blocks()
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::deallocate_free_blocks();
+  }
+
+  //!Deallocates all used memory from the common pool.
+  //!Precondition: all nodes allocated from this pool should
+  //!already be deallocated. Otherwise, undefined behavior.
+  void purge_blocks()
+  {
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    private_node_allocator_t::purge_blocks();
+  }
+
+  //!Increments internal reference count and returns new count
+  size_type inc_ref_count()
+  {
+    //-----------------------
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    //-----------------------
+    return ++m_header.m_usecount;
+  }
+
+  //!Decrements internal reference count and returns new count. Never throws
+  size_type dec_ref_count()
+  {
+    //-----------------------
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    //-----------------------
+    AUTODDS_ASSERT(m_header.m_usecount > 0);
+    return --m_header.m_usecount;
+  }
+
+  //!Deprecated, use deallocate_free_blocks.
+  void deallocate_free_chunks()
+  {
+    //-----------------------
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    //-----------------------
+    private_node_allocator_t::deallocate_free_blocks();
+  }
+
+  //!Deprecated, use purge_blocks.
+  void purge_chunks()
+  {
+    //-----------------------
+    autodds::libs::interprocess::scoped_lock<mutex_type> guard(m_header);
+    //-----------------------
+    private_node_allocator_t::purge_blocks();
+  }
+
+ private:
+  //!This struct includes needed data and derives from
+  //!the mutex type to allow EBO when using null_mutex
+  struct header_t : mutex_type
+  {
+    size_type m_usecount;    //Number of attached allocators
+
+    header_t()
+        :  m_usecount(0) {}
+  } m_header;
+};
+
 } // namespace ipcdetail
-
-
 } // namespace interprocess
 } // namespace libs
 } // namespace autodds
+
+#include "libs/interprocess/detail/config_end.hpp"
 
 #endif //AUTODDS_LIBS_INTERPROCESS_ALLOCATORS_DETAIL_ALLOCATOR_COMMON_HPP_
