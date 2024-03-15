@@ -86,6 +86,5 @@ typedef dtl::integral_constant<unsigned, 2> version_2;
 }
 }
 }
-}
 
 #endif //AUTODDS_LIBS_CONTAINER_DETAIL_VERSION_TYPE_HPP_

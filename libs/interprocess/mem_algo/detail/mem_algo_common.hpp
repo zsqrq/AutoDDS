@@ -117,7 +117,7 @@ class memory_algorithm_common
   static void allocate_many(MemoryAlgorithm* memory_algorithm, size_type elem_bytes,
                             size_type n_elements, multiallocation_chain& chain)
   {
-    return this_type::priv_allocate_many(memory_algo, &elem_bytes, n_elements, 0, chain);
+    return this_type::priv_allocate_many(memory_algorithm, &elem_bytes, n_elements, 0, chain);
   }
 
   static void deallocate_many(MemoryAlgorithm *memory_algo, multiallocation_chain &chain)
@@ -245,7 +245,7 @@ class memory_algorithm_common
     if(alignment <= Alignment){
       void *ignore_reuse = 0;
       return memory_algo->priv_allocate
-          (boost::interprocess::allocate_new, nbytes, real_size, ignore_reuse);
+          (autodds::libs::interprocess::allocate_new, nbytes, real_size, ignore_reuse);
     }
 
     if(nbytes > UsableByPreviousChunk)
@@ -272,7 +272,7 @@ class memory_algorithm_common
     //Now allocate the buffer
     real_size = request;
     void *ignore_reuse = 0;
-    void *buffer = memory_algo->priv_allocate(boost::interprocess::allocate_new, request, real_size, ignore_reuse);
+    void *buffer = memory_algo->priv_allocate(autodds::libs::interprocess::allocate_new, request, real_size, ignore_reuse);
     if(!buffer){
       return 0;
     }
@@ -499,7 +499,7 @@ class memory_algorithm_common
         size_type received_size = total_bytes;
         void *ignore_reuse = 0;
         void *ret = memory_algo->priv_allocate
-            (boost::interprocess::allocate_new, min_allocation, received_size, ignore_reuse);
+            (autodds::libs::interprocess::allocate_new, min_allocation, received_size, ignore_reuse);
         if(!ret){
           break;
         }
@@ -563,7 +563,7 @@ class memory_algorithm_common
           total_used_units += (size_type)new_block->m_size;
           //Check we have enough room to overwrite the intrusive pointer
           AUTODDS_ASSERT((new_block->m_size*Alignment - AllocatedCtrlUnits) >= sizeof(void_pointer));
-          void_pointer p = ::new(memory_algo->priv_get_user_buffer(new_block), boost_container_new_t())void_pointer(0);
+          void_pointer p = ::new(memory_algo->priv_get_user_buffer(new_block), autodds_container_new_t())void_pointer(0);
           chain.push_back(p);
           ++low_idx;
         }
